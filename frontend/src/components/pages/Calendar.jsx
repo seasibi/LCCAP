@@ -76,117 +76,68 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     const month = currentDate.getMonth();
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    
     const days = [];
-
+    
     // Add empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
-      days.push(null);
+      days.push(
+        <div key={`empty-${i}`} className="aspect-square flex items-center justify-center border border-gray-200 bg-gray-50">
+          <span className="text-gray-400 text-xs"></span>
+        </div>
+      );
     }
-
+    
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day));
+      const date = new Date(year, month, day);
+      const isToday = isCurrentMonth && day === today.getDate();
+      const hasEvents = events.filter(event => 
+        event.date.toDateString() === date.toDateString()
+      );
+      
+      days.push(
+        <div 
+          key={day} 
+          className={`aspect-square flex items-center justify-center border rounded-lg cursor-pointer transition-all duration-200 text-sm relative
+            ${isToday ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-green-50 hover:border-green-300'}`}
+          onClick={() => setSelectedDate(date)}
+        >
+          {day}
+          {hasEvents.length > 0 && (
+            <div className="absolute bottom-1 flex gap-1">
+              {hasEvents.slice(0, 3).map((_, index) => (
+                <div key={index} className="w-1 h-1 bg-green-400 rounded-full"></div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
     }
-
+    
     return days;
   };
 
   const navigateMonth = (direction) => {
-    setCurrentDate(prev => {
-      const newDate = new Date(prev);
-      if (direction === 'prev') {
-        newDate.setMonth(newDate.getMonth() - 1);
-      } else {
-        newDate.setMonth(newDate.getMonth() + 1);
-      }
-      return newDate;
-    });
-  };
-
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-    setEventForm(prev => ({
-      ...prev,
-      date: date.toISOString().split('T')[0]
-    }));
-    setShowEventModal(true);
-    setEditingEvent(null);
-  };
-
-  const handleEventClick = (event, e) => {
-    e.stopPropagation();
-    setEditingEvent(event);
-    setEventForm({
-      title: event.title,
-      description: event.description,
-      date: event.date,
-      time: event.time,
-      category: event.category,
-      location: event.location,
-      priority: event.priority,
-      reminder: event.reminder,
-      reminderTime: event.reminderTime || '15'
-    });
-    setShowEventModal(true);
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    
-    const eventData = {
-      id: editingEvent ? editingEvent.id : Date.now().toString(),
-      ...eventForm,
-      createdAt: editingEvent ? editingEvent.createdAt : new Date().toISOString()
-    };
-
-    if (editingEvent) {
-      setEvents(prev => prev.map(event => 
-        event.id === editingEvent.id ? eventData : event
-      ));
+    const newDate = new Date(currentDate);
+    if (direction === 'prev') {
+      newDate.setMonth(newDate.getMonth() - 1);
     } else {
-      setEvents(prev => [...prev, eventData]);
+      newDate.setMonth(newDate.getMonth() + 1);
     }
-
-    handleCloseModal();
+    setCurrentDate(newDate);
   };
 
-  const handleDeleteEvent = (eventId) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      setEvents(prev => prev.filter(event => event.id !== eventId));
-      handleCloseModal();
+  const navigateYear = (direction) => {
+    const newDate = new Date(currentDate);
+    if (direction === 'prev') {
+      newDate.setFullYear(newDate.getFullYear() - 1);
+    } else {
+      newDate.setFullYear(newDate.getFullYear() + 1);
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowEventModal(false);
-    setEditingEvent(null);
-    setEventForm({
-      title: '',
-      description: '',
-      date: '',
-      time: '',
-      category: 'meeting',
-      location: '',
-      priority: 'medium',
-      reminder: false,
-      reminderTime: '15'
-    });
-  };
-
-  const getEventsForDate = (date) => {
-    if (!date) return [];
-    const dateStr = date.toISOString().split('T')[0];
-    return events.filter(event => event.date === dateStr);
-  };
-
-  const getCategoryColor = (category) => {
-    const cat = categories.find(c => c.value === category);
-    return cat ? cat.color : '#6c757d';
-  };
-
-  const getPriorityColor = (priority) => {
-    const pri = priorities.find(p => p.value === priority);
-    return pri ? pri.color : '#6c757d';
+    setCurrentDate(newDate);
   };
 
   const monthNames = [

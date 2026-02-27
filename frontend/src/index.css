@@ -1,3 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Simple test class */
+.simple-test {
+  background-color: red;
+  color: white;
+  padding: 10px;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

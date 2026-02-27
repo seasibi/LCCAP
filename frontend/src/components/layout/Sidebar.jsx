@@ -17,29 +17,27 @@ export default function Sidebar({ isOpen, onNavigate, currentPage, isMobile, onC
   };
 
   return (
-    <div className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-48 bg-green-800 text-white flex flex-col transition-all duration-300 z-50 ${
-      isOpen ? 'translate-x-0' : '-translate-x-48'
+    <div className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[220px] bg-green-800 text-white flex flex-col transition-all duration-300 z-40 shadow-2xl ${
+      isOpen ? 'translate-x-0' : '-translate-x-full'
     }`}>
       <div className="h-full flex flex-col">
-        <div className="flex-1 py-6 overflow-y-auto">
-          {/* Navigation Menu */}
-          <nav className="space-y-2">
-            {navigationItems.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center gap-3 px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
-                  currentPage === item.id
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/80 hover:bg-white/10'
-                }`}
-                onClick={() => handleNavigation(item.id)}
-              >
-                <span className="text-lg">{item.icon}</span>
-                <span className="font-medium">{item.label}</span>
-              </div>
-            ))}
-          </nav>
-        </div>
+        {/* Navigation Menu */}
+        <nav className="flex-1 py-6 overflow-y-auto">
+          {navigationItems.map((item) => (
+            <div
+              key={item.id}
+              className={`flex items-center gap-3 px-6 py-3 cursor-pointer transition-all duration-200 ${
+                currentPage === item.id
+                  ? 'bg-green-700 text-white'
+                  : 'hover:bg-green-700 text-white/80'
+              }`}
+              onClick={() => handleNavigation(item.id)}
+            >
+              <span className="text-lg w-5 text-center">{item.icon}</span>
+              <span className="text-sm font-medium">{item.label}</span>
+            </div>
+          ))}
+        </nav>
       </div>
     </div>
   );

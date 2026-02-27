@@ -30,7 +30,7 @@
 
 /* Sidebar */
 .sidebar {
-  width: 280px;
+  width: 220px;
   height: calc(100vh - 60px);
   background: var(--primary-green);
   color: white;
@@ -40,7 +40,7 @@
   position: fixed;
   top: 60px;
   left: 0;
-  z-index: 999;
+  z-index: 40;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -133,18 +133,18 @@
 /* Main Content */
 .main-content {
   flex: 1;
-  margin-left: 280px;
+  margin-left: 220px;
   padding: 0;
   overflow-x: hidden;
   overflow-y: auto;
   background: var(--neutral-gray);
   height: calc(100vh - 120px);
   position: relative;
-  margin-top: 80px;
+  margin-top: 64px;
 }
 
 .main-content.with-sidebar {
-  margin-left: 280px;
+  margin-left: 220px;
 }
 
 .main-content.full-width {
@@ -474,6 +474,14 @@
   background: var(--light-green);
 }
 
+.legend-color.current {
+  background: var(--primary-green);
+}
+
+.legend-color.target-goal {
+  background: var(--accent-green);
+}
+
 /* Chart Controls */
 .chart-controls {
   display: flex;
@@ -495,6 +503,7 @@
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 500;
+  display: inline-block;
 }
 
 .status-indicator.good {
@@ -923,12 +932,6 @@
   height: 24px;
 }
 
-.calendar-prev-button:hover,
-.calendar-next-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
-}
-
 .calendar-month {
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
@@ -956,7 +959,7 @@
   color: var(--text-medium);
   background: var(--light-green);
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.625rem;
 }
 
 .calendar-days {
@@ -1146,10 +1149,6 @@
   
   .calendar-header {
     padding: 1rem;
-  }
-  
-  .calendar-title {
-    font-size: 0.875rem;
   }
   
   .calendar-body {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../layout/Header';
+import Sidebar from '../layout/Sidebar';
+import Footer from '../layout/Footer';
 
 const ReportManagement = ({ onLogout, navigateToPage }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);

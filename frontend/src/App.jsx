@@ -10,6 +10,7 @@ import './App.css'
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState('login');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogin = (loginData) => {
     console.log('Login successful:', loginData);
@@ -26,22 +27,46 @@ function App() {
     setCurrentPage(page);
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <div className="App">
       {currentPage === 'login' && !isLoggedIn && (
         <Login onLogin={handleLogin} />
       )}
       {currentPage === 'dashboard' && isLoggedIn && (
-        <Dashboard onLogout={handleLogout} navigateToPage={navigateToPage} />
+        <Dashboard 
+          onLogout={handleLogout} 
+          navigateToPage={navigateToPage} 
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
       )}
       {currentPage === 'accomplishment' && isLoggedIn && (
-        <Accomplishment onLogout={handleLogout} navigateToPage={navigateToPage} />
+        <Accomplishment 
+          onLogout={handleLogout} 
+          navigateToPage={navigateToPage} 
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
       )}
       {currentPage === 'calendar' && isLoggedIn && (
-        <Calendar onLogout={handleLogout} navigateToPage={navigateToPage} />
+        <Calendar 
+          onLogout={handleLogout} 
+          navigateToPage={navigateToPage} 
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
       )}
       {currentPage === 'report-management' && isLoggedIn && (
-        <ReportManagement onLogout={handleLogout} navigateToPage={navigateToPage} />
+        <ReportManagement 
+          onLogout={handleLogout} 
+          navigateToPage={navigateToPage} 
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
+        />
       )}
     </div>
   )
