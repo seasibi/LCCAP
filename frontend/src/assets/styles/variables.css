@@ -1,0 +1,95 @@
+/* CSS Variables for City Environment and Parks Management Office */
+
+:root {
+  /* Primary Colors - Green Palette */
+  --forest-green: #2d5016;
+  --sage-green: #4a7c59;
+  --moss-green: #8fbc8f;
+  --emerald-green: #a8d5a8;
+  --light-green: #c8e6c9;
+  --pale-green: #e0f2e0;
+
+  /* Neutral Colors */
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --medium-gray: #e0e0e0;
+  --dark-gray: #666666;
+  --black: #000000;
+
+  /* Semantic Colors */
+  --primary-color: var(--forest-green);
+  --secondary-color: var(--sage-green);
+  --accent-color: var(--moss-green);
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --error-color: #f44336;
+  --info-color: #2196f3;
+
+  /* Background Colors */
+  --bg-primary: linear-gradient(135deg, var(--forest-green) 0%, var(--sage-green) 25%, var(--moss-green) 50%, var(--emerald-green) 75%, var(--light-green) 100%);
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Text Colors */
+  --text-primary: var(--forest-green);
+  --text-secondary: var(--sage-green);
+  --text-muted: var(--dark-gray);
+  --text-light: var(--white);
+
+  /* Border Colors */
+  --border-light: rgba(74, 124, 89, 0.2);
+  --border-medium: rgba(74, 124, 89, 0.4);
+  --border-dark: var(--sage-green);
+
+  /* Shadow Colors */
+  --shadow-light: rgba(45, 80, 22, 0.1);
+  --shadow-medium: rgba(45, 80, 22, 0.2);
+  --shadow-dark: rgba(45, 80, 22, 0.3);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 20px;
+  --radius-full: 50%;
+
+  /* Typography */
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Z-index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
