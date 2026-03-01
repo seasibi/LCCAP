@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../layout/Header';
-import Sidebar from '../layout/Sidebar';
-import Footer from '../layout/Footer';
 
-const ReportManagement = ({ onLogout, navigateToPage }) => {
+const ReportManagement = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [reports, setReports] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -222,986 +219,267 @@ const ReportManagement = ({ onLogout, navigateToPage }) => {
   };
 
   return (
-    <>
-      <style jsx>{`
-        /* Report Management Styles */
-        .dashboard-container {
-          display: flex;
-          min-height: 100vh;
-          background: linear-gradient(135deg, #f8faf8 0%, #e8f5e8 50%, #d4edd4 100%);
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-          width: 260px;
-          background: linear-gradient(135deg, #2d5016, #4a7c59);
-          color: white;
-          display: flex;
-          flex-direction: column;
-          transition: all 0.3s ease;
-          position: fixed;
-          height: 100vh;
-          z-index: 999;
-        }
-
-        .sidebar.open {
-          transform: translateX(0);
-        }
-
-        .sidebar.closed {
-          transform: translateX(-260px);
-        }
-
-        .sidebar-header {
-          padding: 1.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .logo-icon {
-          font-size: 1.5rem;
-        }
-
-        .logo-text {
-          font-size: 1.25rem;
-          font-weight: 600;
-        }
-
-        .sidebar-nav {
-          flex: 1;
-          padding: 1rem 0;
-        }
-
-        .nav-item {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 0.75rem 1.5rem;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          color: rgba(255, 255, 255, 0.8);
-        }
-
-        .nav-item:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-        }
-
-        .nav-item.active {
-          background: #4a7c59;
-          color: white;
-        }
-
-        .nav-icon {
-          font-size: 1.1rem;
-          width: 20px;
-        }
-
-        .nav-text {
-          font-size: 0.9rem;
-        }
-
-        .sidebar-footer {
-          padding: 1.5rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .user-profile {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 1rem;
-        }
-
-        .user-avatar {
-          width: 40px;
-          height: 40px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-        }
-
-        .user-info {
-          flex: 1;
-        }
-
-        .user-name {
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-
-        .user-role {
-          font-size: 0.8rem;
-          color: rgba(255, 255, 255, 0.6);
-        }
-
-        .logout-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          background: rgba(255, 255, 255, 0.1);
-          border: none;
-          border-radius: 6px;
-          color: white;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 0.85rem;
-        }
-
-        .logout-btn:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-
-        .logout-icon {
-          font-size: 1rem;
-        }
-
-        /* Main Content */
-        .main-content {
-          flex: 1;
-          transition: all 0.3s ease;
-          min-height: 100vh;
-        }
-
-        .main-content.with-sidebar {
-          margin-left: 260px;
-        }
-
-        .main-content.full-width {
-          margin-left: 0;
-        }
-
-        /* Header */
-        .report-header {
-          background: white;
-          padding: 2rem;
-          border-bottom: 1px solid #e8f5e8;
-          box-shadow: 0 2px 4px rgba(45, 80, 22, 0.05);
-        }
-
-        .header-content {
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-
-        .header-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 2rem;
-        }
-
-        .page-title {
-          font-size: 2rem;
-          font-weight: 700;
-          color: #2d5016;
-          margin: 0;
-        }
-
-        .add-report-btn {
-          padding: 0.75rem 1.5rem;
-          background: linear-gradient(135deg, #4a7c59, #2d5016);
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .add-report-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
-        }
-
-        /* Filters */
-        .filters-section {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr auto;
-          gap: 1rem;
-          align-items: end;
-        }
-
-        .search-box {
-          position: relative;
-        }
-
-        .search-input {
-          width: 100%;
-          padding: 0.75rem 1rem 0.75rem 2.5rem;
-          border: 2px solid #e9ecef;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-          outline: none;
-          border-color: #4a7c59;
-          box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 0.75rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #6c757d;
-        }
-
-        .filter-select {
-          padding: 0.75rem 1rem;
-          border: 2px solid #e9ecef;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          background: white;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .filter-select:focus {
-          outline: none;
-          border-color: #4a7c59;
-          box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
-        }
-
-        .stats-container {
-          display: flex;
-          gap: 2rem;
-          align-items: center;
-        }
-
-        .stat-item {
-          text-align: center;
-        }
-
-        .stat-value {
-          display: block;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: #2d5016;
-        }
-
-        .stat-label {
-          font-size: 0.8rem;
-          color: #4a7c59;
-          text-transform: uppercase;
-        }
-
-        /* Reports Grid */
-        .reports-container {
-          max-width: 1400px;
-          margin: 0 auto;
-          padding: 2rem;
-        }
-
-        .reports-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .report-card {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(45, 80, 22, 0.08);
-          border: 1px solid #e8f5e8;
-          overflow: hidden;
-          transition: all 0.3s ease;
-        }
-
-        .report-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(45, 80, 22, 0.15);
-        }
-
-        .report-header {
-          padding: 1.5rem;
-          border-bottom: 1px solid #e8f5e8;
-        }
-
-        .report-title {
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: #2d5016;
-          margin: 0 0 0.5rem 0;
-          line-height: 1.4;
-        }
-
-        .report-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.5rem;
-        }
-
-        .report-category {
-          font-size: 0.8rem;
-          color: #4a7c59;
-          background: #e8f5e8;
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
-        }
-
-        .report-status {
-          font-size: 0.75rem;
-          font-weight: 600;
-          padding: 0.2rem 0.5rem;
-          border-radius: 12px;
-          text-transform: uppercase;
-        }
-
-        .report-description {
-          font-size: 0.9rem;
-          color: #6c757d;
-          line-height: 1.5;
-          margin: 0;
-        }
-
-        .report-footer {
-          padding: 1rem 1.5rem;
-          background: #f8faf8;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .report-info {
-          display: flex;
-          gap: 1rem;
-          font-size: 0.8rem;
-          color: #6c757d;
-        }
-
-        .report-actions {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        .action-btn {
-          padding: 0.4rem 0.8rem;
-          border: none;
-          border-radius: 6px;
-          font-size: 0.8rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .download-btn {
-          background: #4a7c59;
-          color: white;
-        }
-
-        .download-btn:hover {
-          background: #2d5016;
-        }
-
-        .edit-btn {
-          background: #ffc107;
-          color: #000;
-        }
-
-        .edit-btn:hover {
-          background: #e0a800;
-        }
-
-        .delete-btn {
-          background: #dc3545;
-          color: white;
-        }
-
-        .delete-btn:hover {
-          background: #c82333;
-        }
-
-        /* Modal */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 999;
-          padding: 1rem;
-        }
-
-        .modal {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          max-width: 600px;
-          width: 100%;
-          max-height: 90vh;
-          overflow-y: auto;
-        }
-
-        .modal-header {
-          padding: 1.5rem;
-          background: linear-gradient(135deg, #4a7c59, #2d5016);
-          color: white;
-          border-radius: 16px 16px 0 0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .modal-title {
-          font-size: 1.3rem;
-          font-weight: 600;
-          margin: 0;
-        }
-
-        .close-btn {
-          background: none;
-          border: none;
-          color: white;
-          font-size: 1.5rem;
-          cursor: pointer;
-          padding: 0.25rem;
-          opacity: 0.8;
-          transition: opacity 0.3s ease;
-        }
-
-        .close-btn:hover {
-          opacity: 1;
-        }
-
-        .modal-body {
-          padding: 1.5rem;
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-          margin-bottom: 1rem;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .form-group.full-width {
-          grid-column: 1 / -1;
-        }
-
-        .form-label {
-          font-weight: 600;
-          color: #2d5016;
-          font-size: 0.9rem;
-        }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-          padding: 0.75rem;
-          border: 2px solid #e9ecef;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-family: inherit;
-          transition: all 0.3s ease;
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-          outline: none;
-          border-color: #4a7c59;
-          box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
-        }
-
-        .form-textarea {
-          resize: vertical;
-          min-height: 100px;
-        }
-
-        .form-file {
-          padding: 0.75rem;
-          border: 2px dashed #e9ecef;
-          border-radius: 8px;
-          background: #f8f9fa;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .form-file:hover {
-          border-color: #4a7c59;
-          background: #f0f8f0;
-        }
-
-        .modal-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: 0.75rem;
-          padding-top: 1rem;
-          border-top: 1px solid #e9ecef;
-          margin-top: 1rem;
-        }
-
-        .cancel-btn {
-          padding: 0.75rem 1.5rem;
-          background: #6c757d;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .cancel-btn:hover {
-          background: #5a6268;
-        }
-
-        .submit-btn {
-          padding: 0.75rem 1.5rem;
-          background: linear-gradient(135deg, #4a7c59, #2d5016);
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .submit-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
-        }
-
-        /* Empty State */
-        .empty-state {
-          text-align: center;
-          padding: 4rem 2rem;
-          color: #6c757d;
-        }
-
-        .empty-icon {
-          font-size: 4rem;
-          margin-bottom: 1rem;
-          opacity: 0.5;
-        }
-
-        .empty-title {
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-        }
-
-        .empty-description {
-          font-size: 1rem;
-          margin-bottom: 2rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-          .reports-grid {
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          }
-        }
-
-        @media (max-width: 768px) {
-          .header-top {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
-          }
-
-          .filters-section {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-          }
-
-          .stats-container {
-            justify-content: space-around;
-          }
-
-          .reports-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .form-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .modal-actions {
-            flex-direction: column;
-          }
-
-          .cancel-btn,
-          .submit-btn {
-            width: 100%;
-          }
-
-          .sidebar {
-            transform: translateX(-260px);
-          }
-
-          .sidebar.open {
-            transform: translateX(0);
-          }
-
-          .main-content.with-sidebar {
-            margin-left: 0;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .report-header {
-            padding: 1rem;
-          }
-
-          .reports-container {
-            padding: 1rem;
-          }
-
-          .page-title {
-            font-size: 1.5rem;
-          }
-
-          .report-footer {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
-          }
-
-          .report-actions {
-            justify-content: center;
-          }
-        }
-      `}</style>
-
-      <Header showSidebarToggle={true} onSidebarToggle={toggleSidebar} />
-      <div className="dashboard-container">
-        {/* Sidebar */}
-        <div className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
-          <div className="sidebar-header">
-            <div className="logo">
-              <div className="logo-icon">🌿</div>
-              <span className="logo-text">LCCAP</span>
-            </div>
-          </div>
-          
-          <nav className="sidebar-nav">
-            <div className="nav-item" onClick={() => handleNavigation('dashboard')}>
-              <span className="nav-icon">📊</span>
-              <span className="nav-text">Dashboard</span>
-            </div>
-            <div className="nav-item" onClick={() => handleNavigation('accomplishment')}>
-              <span className="nav-icon">🏆</span>
-              <span className="nav-text">Accomplishment</span>
-            </div>
-            <div className="nav-item" onClick={() => handleNavigation('calendar')}>
-              <span className="nav-icon">📅</span>
-              <span className="nav-text">Calendar</span>
-            </div>
-            <div className="nav-item active">
-              <span className="nav-icon">📋</span>
-              <span className="nav-text">Report Management</span>
-            </div>
-            <div className="nav-item" onClick={() => handleNavigation('user-management')}>
-              <span className="nav-icon">👥</span>
-              <span className="nav-text">User Management</span>
-            </div>
-          </nav>
-
-          <div className="sidebar-footer">
-            <div className="user-profile">
-              <div className="user-avatar">👤</div>
-              <div className="user-info">
-                <div className="user-name">Admin User</div>
-                <div className="user-role">Administrator</div>
-              </div>
-            </div>
-            <button className="logout-btn" onClick={onLogout}>
-              <span className="logout-icon">🚪</span>
-              <span>Logout</span>
+    <div className="min-h-full bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Report Management</h1>
+            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2" onClick={() => setShowModal(true)}>
+              <span>+</span>
+              Add New Report
             </button>
+          </div>
+
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="relative">
+              <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Search reports..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">All Status</option>
+              {statuses.map(status => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+            >
+              <option value="all">All Categories</option>
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="date">Sort by Date</option>
+              <option value="title">Sort by Title</option>
+              <option value="author">Sort by Author</option>
+              <option value="downloads">Sort by Downloads</option>
+            </select>
+          </div>
+
+          {/* Stats */}
+          <div className="flex gap-6">
+            <div className="text-center">
+              <span className="block text-2xl font-bold text-green-700">{reports.length}</span>
+              <span className="text-sm text-gray-500">Total</span>
+            </div>
+            <div className="text-center">
+              <span className="block text-2xl font-bold text-green-700">{reports.filter(r => r.status === 'published').length}</span>
+              <span className="text-sm text-gray-500">Published</span>
+            </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className={`main-content ${sidebarOpen ? 'with-sidebar' : 'full-width'}`}>
-          <div className="report-header">
-            <div className="header-content">
-              <div className="header-top">
-                <h1 className="page-title">Report Management</h1>
-                <button className="add-report-btn" onClick={() => setShowModal(true)}>
-                  <span>+</span>
-                  Add New Report
-                </button>
-              </div>
-
-              <div className="filters-section">
-                <div className="search-box">
-                  <span className="search-icon">🔍</span>
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search reports..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                <select
-                  className="filter-select"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  {statuses.map(status => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  className="filter-select"
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                >
-                  <option value="all">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  className="filter-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="date">Sort by Date</option>
-                  <option value="title">Sort by Title</option>
-                  <option value="author">Sort by Author</option>
-                  <option value="downloads">Sort by Downloads</option>
-                </select>
-
-                <div className="stats-container">
-                  <div className="stat-item">
-                    <span className="stat-value">{reports.length}</span>
-                    <span className="stat-label">Total</span>
+        {/* Reports Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredReports.length > 0 ? (
+            filteredReports.map(report => (
+              <div key={report.id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{report.title}</h3>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">{report.category}</span>
+                    <span 
+                      className="text-xs px-2 py-1 rounded text-white"
+                      style={{ backgroundColor: getStatusColor(report.status) }}
+                    >
+                      {getStatusLabel(report.status)}
+                    </span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-value">{reports.filter(r => r.status === 'published').length}</span>
-                    <span className="stat-label">Published</span>
+                  <p className="text-sm text-gray-600 line-clamp-2">{report.description}</p>
+                </div>
+                <div className="p-4 bg-gray-50">
+                  <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
+                    <span>📅 {new Date(report.date).toLocaleDateString()}</span>
+                    <span>👤 {report.author}</span>
+                    <span>📊 {report.downloads}</span>
+                    <span>💾 {report.size}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
+                      onClick={() => handleDownload(report)}
+                    >
+                      ⬇ Download
+                    </button>
+                    <button 
+                      className="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600 transition-colors"
+                      onClick={() => handleEdit(report)}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button 
+                      className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                      onClick={() => handleDelete(report.id)}
+                    >
+                      🗑️ Delete
+                    </button>
                   </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="text-6xl mb-4 opacity-50">📄</div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Reports Found</h3>
+              <p className="text-gray-500">
+                {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
+                  ? 'Try adjusting your filters or search terms'
+                  : 'Get started by adding your first report'
+                }
+              </p>
             </div>
-          </div>
-
-          <div className="reports-container">
-            {filteredReports.length > 0 ? (
-              <div className="reports-grid">
-                {filteredReports.map(report => (
-                  <div key={report.id} className="report-card">
-                    <div className="report-header">
-                      <h3 className="report-title">{report.title}</h3>
-                      <div className="report-meta">
-                        <span className="report-category">{report.category}</span>
-                        <span 
-                          className="report-status"
-                          style={{ backgroundColor: getStatusColor(report.status), color: 'white' }}
-                        >
-                          {getStatusLabel(report.status)}
-                        </span>
-                      </div>
-                      <p className="report-description">{report.description}</p>
-                    </div>
-                    <div className="report-footer">
-                      <div className="report-info">
-                        <span>📅 {new Date(report.date).toLocaleDateString()}</span>
-                        <span>👤 {report.author}</span>
-                        <span>📊 {report.downloads} downloads</span>
-                        <span>💾 {report.size}</span>
-                      </div>
-                      <div className="report-actions">
-                        <button 
-                          className="action-btn download-btn"
-                          onClick={() => handleDownload(report)}
-                        >
-                          ⬇
-                        </button>
-                        <button 
-                          className="action-btn edit-btn"
-                          onClick={() => handleEdit(report)}
-                        >
-                          ✏️
-                        </button>
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={() => handleDelete(report.id)}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon">📄</div>
-                <h2 className="empty-title">No Reports Found</h2>
-                <p className="empty-description">
-                  {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
-                    ? 'Try adjusting your filters or search terms'
-                    : 'Get started by adding your first report'}
-                </p>
-                <button className="add-report-btn" onClick={() => setShowModal(true)}>
-                  <span>+</span>
-                  Add Your First Report
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Add/Edit Report Modal */}
+      {/* Modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3 className="modal-title">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-t-xl flex justify-between items-center">
+              <h3 className="text-xl font-semibold">
                 {editingReport ? 'Edit Report' : 'Add New Report'}
               </h3>
-              <button className="close-btn" onClick={handleCloseModal}>×</button>
+              <button 
+                className="w-8 h-8 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center transition-colors"
+                onClick={handleCloseModal}
+              >
+                ×
+              </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="modal-body">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label className="form-label">Report Title *</label>
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="Enter report title"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     required
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label className="form-label">Category *</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                   <select
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="form-select"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     required
                   >
-                    <option value="">Select category</option>
+                    <option value="">Select Category</option>
                     {categories.map(category => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
+                      <option key={category} value={category}>{category}</option>
                     ))}
                   </select>
                 </div>
-                
-                <div className="form-group">
-                  <label className="form-label">Date *</label>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
                   <input
                     type="date"
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    className="form-input"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     required
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label className="form-label">Author *</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Author</label>
                   <input
                     type="text"
                     name="author"
                     value={formData.author}
                     onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="Author name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     required
                   />
                 </div>
-                
-                <div className="form-group">
-                  <label className="form-label">Status *</label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className="form-select"
-                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     {statuses.map(status => (
-                      <option key={status.value} value={status.value}>
-                        {status.label}
-                      </option>
+                      <option key={status.value} value={status.value}>{status.label}</option>
                     ))}
                   </select>
                 </div>
                 
-                <div className="form-group">
-                  <label className="form-label">Upload File</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">File</label>
                   <input
                     type="file"
                     onChange={handleFileChange}
-                    className="form-file"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
               </div>
-              
-              <div className="form-group full-width">
-                <label className="form-label">Description *</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  placeholder="Provide a detailed description of the report"
-                  rows={4}
-                  required
-                />
-              </div>
-              
-              <div className="modal-actions">
-                <button type="button" className="cancel-btn" onClick={handleCloseModal}>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                  onClick={handleCloseModal}
+                >
                   Cancel
                 </button>
-                <button type="submit" className="submit-btn">
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
                   {editingReport ? 'Update' : 'Create'} Report
                 </button>
               </div>
@@ -1209,7 +487,7 @@ const ReportManagement = ({ onLogout, navigateToPage }) => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
