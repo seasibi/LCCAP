@@ -93,26 +93,6 @@ const Sidebar = ({ isOpen, currentPage, navigateToPage, onLogout }) => {
           ))}
         </ul>
       </nav>
-
-      {/* User Profile & Logout */}
-      <div className="p-4 border-t border-green-600">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-            <UserIcon />
-          </div>
-          <div>
-            <div className="font-semibold text-white">Admin User</div>
-            <div className="text-sm text-green-200">Administrator</div>
-          </div>
-        </div>
-        <button 
-          className="w-full bg-red-600 hover:bg-red-500 text-white py-3 px-4 rounded-xl transition-all duration-300 ease-in-out flex items-center justify-center gap-3 hover:shadow-lg hover:scale-[1.02] active:scale-95 font-medium"
-          onClick={onLogout}
-        >
-          <LogoutIcon />
-          <span>Logout</span>
-        </button>
-      </div>
     </div>
   );
 };

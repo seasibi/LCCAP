@@ -295,66 +295,16 @@ const ReportManagement = () => {
           </div>
         </div>
 
-        {/* Reports Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredReports.length > 0 ? (
-            filteredReports.map(report => (
-              <div key={report.id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="p-4 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{report.title}</h3>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">{report.category}</span>
-                    <span 
-                      className="text-xs px-2 py-1 rounded text-white"
-                      style={{ backgroundColor: getStatusColor(report.status) }}
-                    >
-                      {getStatusLabel(report.status)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 line-clamp-2">{report.description}</p>
-                </div>
-                <div className="p-4 bg-gray-50">
-                  <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
-                    <span>📅 {new Date(report.date).toLocaleDateString()}</span>
-                    <span>👤 {report.author}</span>
-                    <span>📊 {report.downloads}</span>
-                    <span>💾 {report.size}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button 
-                      className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors"
-                      onClick={() => handleDownload(report)}
-                    >
-                      ⬇ Download
-                    </button>
-                    <button 
-                      className="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600 transition-colors"
-                      onClick={() => handleEdit(report)}
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button 
-                      className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                      onClick={() => handleDelete(report.id)}
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <div className="text-6xl mb-4 opacity-50">📄</div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Reports Found</h3>
-              <p className="text-gray-500">
-                {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
-                  ? 'Try adjusting your filters or search terms'
-                  : 'Get started by adding your first report'
-                }
-              </p>
-            </div>
-          )}
+        {/* Empty Content Area */}
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="text-6xl mb-4 opacity-50">📄</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No reports available.</h3>
+          <button 
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
+            onClick={() => setShowModal(true)}
+          >
+            Add Report
+          </button>
         </div>
       </div>
 

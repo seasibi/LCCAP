@@ -103,16 +103,19 @@ const Login = ({ onLogin }) => {
 
   return (
     <>
+      {/* Header */}
+      <Header minimal={true} />
+      
       <style jsx>{`
         /* Login Page Styles */
         .login-container {
           position: fixed;
-          top: 0;
+          top: 64px; /* Account for header height */
           left: 0;
           right: 0;
           bottom: 0;
           width: 100vw;
-          height: 100vh;
+          height: calc(100vh - 64px); /* Account for header height */
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1013,38 +1016,14 @@ const Login = ({ onLogin }) => {
                   <div className="tree-leaves layer-2"></div>
                   <div className="tree-leaves layer-3"></div>
                 </div>
-                <p className="loading-text">Nurturing a Sustainable Future...</p>
+                <p className="loading-text">Loading...</p>
               </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="footer-container">
-          <div className="footer-content">
-            <div className="footer-logo">
-              <div className="footer-icon">🌿</div>
-              <div className="footer-text">
-                <h3>LCCAP Dashboard</h3>
-                <p>Low Carbon Climate Action Platform</p>
-              </div>
-            </div>
-            <div className="footer-info">
-              <div className="footer-item">
-                <span className="footer-icon">🌱</span>
-                <span>Carbon Neutral 2030</span>
-              </div>
-              <div className="footer-item">
-                <span className="footer-icon">📊</span>
-                <span>Real-time Monitoring</span>
-              </div>
-              <div className="footer-item">
-                <span className="footer-icon">🌍</span>
-                <span>Climate Action</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Footer />
       </div>
     </>
   );

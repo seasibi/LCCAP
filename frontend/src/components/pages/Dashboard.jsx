@@ -1,84 +1,171 @@
 import React, { useState, useEffect } from 'react';
 
-const ChevronLeftIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-  </svg>
-);
+import Header from '../layout/Header';
 
-const ChevronRightIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-  </svg>
-);
+import baguioLogo from '../../assets/images/baguio-logo.png';
 
-const Dashboard = () => {
+
+
+const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => {
+
   const [currentDate, setCurrentDate] = useState(new Date());
+
   const [selectedDate, setSelectedDate] = useState(null);
 
+
+
   // Sample data for graphs
+
   const yearlyData = [
+
     { year: 2019, accomplishments: 45 },
+
     { year: 2020, accomplishments: 62 },
+
     { year: 2021, accomplishments: 78 },
+
     { year: 2022, accomplishments: 89 },
+
     { year: 2023, accomplishments: 95 },
+
     { year: 2024, accomplishments: 112 }
+
   ];
+
+
 
   const targetData = [
+
     { category: 'Climate Adaptation', current: 65, target: 100 },
+
     { category: 'Mitigation', current: 78, target: 100 },
+
     { category: 'Resilience', current: 52, target: 100 },
+
     { category: 'Sustainability', current: 71, target: 100 }
+
   ];
 
-  // Sample events for calendar
-  const events = {
-    '2024-02-15': 'Climate Action Planning',
-    '2024-02-20': 'Stakeholder Meeting',
-    '2024-02-25': 'Progress Review',
-    '2024-03-01': 'Target Assessment',
-    '2024-03-10': 'Annual Report Due'
-  };
+
+
+  // Load events from localStorage (same as Calendar)
+  const [events, setEvents] = useState({});
+
+  // Load events from localStorage on mount
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('calendarEvents');
+    if (savedEvents) {
+      const parsedEvents = JSON.parse(savedEvents);
+      // Convert array to object format for Dashboard calendar
+      const eventsObject = {};
+      parsedEvents.forEach(event => {
+        eventsObject[event.date] = event.eventName;
+      });
+      setEvents(eventsObject);
+    }
+  }, []);
+
+  // Listen for storage changes (sync with Calendar)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedEvents = localStorage.getItem('calendarEvents');
+      if (savedEvents) {
+        const parsedEvents = JSON.parse(savedEvents);
+        const eventsObject = {};
+        parsedEvents.forEach(event => {
+          eventsObject[event.date] = event.eventName;
+        });
+        setEvents(eventsObject);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Also check periodically for same-tab updates
+    const interval = setInterval(handleStorageChange, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+
 
   // Calendar functions
+
   const getDaysInMonth = (date) => {
+
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
   };
+
+
 
   const getFirstDayOfMonth = (date) => {
+
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
   };
+
+
 
   const generateCalendarDays = () => {
+
     const daysInMonth = getDaysInMonth(currentDate);
+
     const firstDay = getFirstDayOfMonth(currentDate);
+
     const days = [];
 
+
+
     // Add empty cells for days before month starts
+
     for (let i = 0; i < firstDay; i++) {
+
       days.push(null);
+
     }
+
+
 
     // Add days of the month
+
     for (let i = 1; i <= daysInMonth; i++) {
+
       days.push(i);
+
     }
+
+
 
     return days;
+
   };
+
+
 
   const hasEvent = (day) => {
+
     const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
     return events[dateStr];
+
   };
 
+
+
   const handleDateClick = (day) => {
+
     if (day) {
+
       setSelectedDate(day);
+
     }
+
   };
+
+
 
   return (
     <div className="p-6 h-full overflow-hidden">
@@ -94,7 +181,7 @@ const Dashboard = () => {
               onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
               className="p-3 hover:bg-gray-100 rounded-xl transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md active:scale-95 cursor-pointer"
             >
-              <ChevronLeftIcon />
+              <span className="text-gray-600">◀</span>
             </button>
             <h4 className="text-sm font-semibold text-gray-700">
               {currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
@@ -103,7 +190,7 @@ const Dashboard = () => {
               onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
               className="p-3 hover:bg-gray-100 rounded-xl transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md active:scale-95 cursor-pointer"
             >
-              <ChevronRightIcon />
+              <span className="text-gray-600">▶</span>
             </button>
           </div>
 
@@ -122,7 +209,7 @@ const Dashboard = () => {
                 <div
                   key={index}
                   onClick={() => handleDateClick(day)}
-                  className={`
+                  className={` 
                     relative p-3 text-sm cursor-pointer rounded-xl transition-all duration-300 ease-in-out
                     ${day ? 'hover:bg-green-50 hover:scale-105 hover:shadow-md' : ''}
                     ${selectedDate === day ? 'bg-green-500 text-white shadow-lg scale-105' : ''}
@@ -198,6 +285,9 @@ const Dashboard = () => {
       </div>
     </div>
   );
+
 };
 
+
 export default Dashboard;
+

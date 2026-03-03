@@ -25,51 +25,13 @@ const GlobeIcon = () => (
 );
 
 const Footer = ({ minimal = false }) => {
-  if (minimal) {
-    return (
-      <footer className="fixed bottom-0 left-0 right-0 text-center p-5 z-5 bg-transparent">
-        <div className="flex items-center justify-center gap-5 text-white/80 text-sm">
-          <LeafIcon />
-          <span>© 2026 City Environment and Parks Management Office</span>
-          <LeafIcon />
-        </div>
-      </footer>
-    );
-  }
+  if (minimal) return null;
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-green-700 to-green-600 text-white p-4 z-50 shadow-lg border-2 border-green-400/40 border-t-4 border-green-400/60">
-      <div className="flex justify-between items-center w-full">
-        {/* Left - Logo and Title */}
-        <div className="flex items-center gap-3 ml-4">
-          <div className="text-xl bg-white/10 p-2 rounded-full flex items-center justify-center w-10 h-10 shadow-md flex-shrink-0">
-            <LeafIcon />
-          </div>
-          <div>
-            <h3 className="font-semibold text-white/95 text-sm">LCCAP Dashboard</h3>
-            <p className="text-xs text-white/80">Low Carbon Climate Action Platform</p>
-          </div>
-        </div>
-
-        {/* Center - Info Items */}
-        <div className="hidden md:flex items-center gap-6">
-          <div className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 hover:bg-white/10 px-3 py-2 rounded-lg">
-            <PlantIcon />
-            <span>Carbon Neutral 2030</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 hover:bg-white/10 px-3 py-2 rounded-lg">
-            <ChartIcon />
-            <span>Real-time Monitoring</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 hover:bg-white/10 px-3 py-2 rounded-lg">
-            <GlobeIcon />
-            <span>Climate Action</span>
-          </div>
-        </div>
-
-        {/* Right - Copyright */}
-        <div className="text-xs text-white/70 mr-4">
-          © 2026 CEPMO - All Rights Reserved
+      <div className="flex justify-center items-center w-full">
+        <div className="text-center text-white/70">
+          2026 City Environment and Parks Management Office - All Rights Reserved
         </div>
       </div>
     </footer>

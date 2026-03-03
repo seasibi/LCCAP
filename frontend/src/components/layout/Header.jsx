@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import baguioLogo from '../../assets/images/baguio-logo.png';
 
 const MenuIcon = () => (
@@ -13,7 +13,8 @@ const UserIcon = () => (
   </svg>
 );
 
-const Header = ({ title, showSidebarToggle = false, onSidebarToggle = null, minimal = false }) => {
+const Header = ({ title, showSidebarToggle = false, onSidebarToggle = null, minimal = false, onLogout = null }) => {
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   if (minimal) {
     return (
       <header className="fixed top-0 left-0 right-0 z-60 w-full h-16 bg-gradient-to-r from-green-700 to-green-600 text-white shadow-lg border-2 border-green-400/40 border-b-4 border-green-400/60">
@@ -63,11 +64,16 @@ const Header = ({ title, showSidebarToggle = false, onSidebarToggle = null, mini
         </div>
 
         {/* Right Section - User Profile */}
-        <div className="flex items-center pr-4">
-          <button className="bg-white/20 hover:bg-white/30 px-5 py-3 rounded-xl transition-all duration-300 ease-in-out flex items-center gap-3 text-sm font-medium hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-95">
-            <UserIcon />
-            <span className="hidden sm:inline whitespace-nowrap">Profile</span>
-          </button>
+        <div className="flex items-center pr-4 relative">
+          <div className="relative">
+            <button 
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              className="bg-white/20 hover:bg-white/30 px-5 py-3 rounded-xl transition-all duration-300 ease-in-out flex items-center gap-3 text-sm font-medium hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50 active:scale-95"
+            >
+              <UserIcon />
+              <span className="hidden sm:inline whitespace-nowrap">Profile</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>

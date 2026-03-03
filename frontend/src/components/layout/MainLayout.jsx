@@ -13,7 +13,7 @@ const MainLayout = ({ children, onLogout, navigateToPage, currentPage }) => {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Header */}
-      <Header showSidebarToggle={true} onSidebarToggle={toggleSidebar} />
+      <Header showSidebarToggle={true} onSidebarToggle={toggleSidebar} onLogout={onLogout} />
       
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden pt-16 pb-16">
