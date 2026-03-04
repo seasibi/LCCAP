@@ -85,6 +85,12 @@ const LogoutIcon = () => (
   </svg>
 );
 
+const FolderIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+  </svg>
+);
+
 const getIcon = (iconName) => {
   switch (iconName) {
     case '📊': return <DashboardIcon />;
@@ -92,6 +98,7 @@ const getIcon = (iconName) => {
     case '📅': return <CalendarIcon />;
     case '📋': return <DocumentIcon />;
     case '👥': return <UsersIcon />;
+    case '🗃️': return <FolderIcon />;
     default: return <DashboardIcon />;
   }
 };
@@ -100,6 +107,12 @@ const Sidebar = ({ isOpen, currentPage, navigateToPage, onLogout }) => {
   const handleNavigation = (page) => {
     if (navigateToPage) {
       navigateToPage(page);
+    }
+  };
+
+  const handlePillarNavigation = (pillarPath) => {
+    if (navigateToPage) {
+      navigateToPage(pillarPath);
     }
   };
 
@@ -140,43 +153,64 @@ const Sidebar = ({ isOpen, currentPage, navigateToPage, onLogout }) => {
           <h3 className="text-xs font-semibold text-green-200 uppercase tracking-wider mb-2">LCCAP Pillars</h3>
           <ul className="space-y-1">
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/food-security')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <LeafIcon />
                 <span className="text-xs">Food Security</span>
               </button>
             </li>
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/water-sufficiency')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <WaterIcon />
                 <span className="text-xs">Water Sufficiency</span>
               </button>
             </li>
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/ecological-stability')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <TreeIcon />
                 <span className="text-xs">Ecological Stability</span>
               </button>
             </li>
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/human-security')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <ShieldIcon />
                 <span className="text-xs">Human Security</span>
               </button>
             </li>
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/climate-smart-industries')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <FactoryIcon />
                 <span className="text-xs">Climate-Smart Industries</span>
               </button>
             </li>
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/sustainable-energy')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <LightningIcon />
                 <span className="text-xs">Sustainable Energy</span>
               </button>
             </li>
             <li>
-              <button className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700">
+              <button 
+                onClick={() => handlePillarNavigation('/knowledge-capacity')}
+                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+              >
                 <BookIcon />
                 <span className="text-xs">Knowledge & Capacity</span>
               </button>

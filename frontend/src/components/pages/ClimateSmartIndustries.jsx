@@ -1,12 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useToast } from '../../context/ToastContext';
+import { calendarEventsAPI } from '../../services/api';
 
 const ClimateSmartIndustries = () => {
-  const [projects, setProjects] = useState([
-    { id: 1, office: 'City Business Office', projectName: 'Green Business Certification', accomplishment: 72, status: 'Ongoing', target: '50 businesses', actual: '36 certified', quarter: 'Q1 2026' },
-    { id: 2, office: 'City Engineering Office', projectName: 'Industrial Zone Development', accomplishment: 68, status: 'Ongoing', target: '10 hectares', actual: '6.8 hectares developed', quarter: 'Q1 2026' }
-  ]);
+  const { showSuccess, showError, showInfo } = useToast();
+  
+  // State for events
+  const [events, setEvents] = useState([]);
+  
+  // Calculate projects from events
+  const calculateProjectsFromEvents = (eventsData) => {
+    const climateIndustriesEvents = eventsData.filter(event => 
+      event.pillar && event.pillar.includes('Climate-Smart Industries')
+    );
+    
+    // Group events by office to create projects
+    const officeGroups = climateIndustriesEvents.reduce((acc, event) => {
+      const office = event.office || 'Unassigned';
+      if (!acc[office]) {
+        acc[office] = {
+          id: Math.random(),
+          office: office,
+          projectName: `${office} Programs`,
+          events: [],
+          accomplishment: 0,
+          status: 'Ongoing',
+          target: 'Multiple activities',
+          actual: '0 completed',
+          quarter: 'Q1 2026'
+        };
+      }
+      acc[office].events.push(event);
+      return acc;
+    }, {});
 
-  const [stats] = useState({ leadingOffice: 'City Business Office', overallAccomplishment: 70, totalDepartments: 2, totalProjects: 4 });
+    // Calculate accomplishment for each office
+    Object.values(officeGroups).forEach(project => {
+      const totalEvents = project.events.length;
+      const completedEvents = project.events.filter(event => event.status === 'Completed').length;
+      project.accomplishment = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
+      project.actual = `${completedEvents}/${totalEvents} completed`;
+      project.status = completedEvents === totalEvents ? 'Completed' : 'Ongoing';
+    });
+
+    return Object.values(officeGroups);
+  };
+
+  // Load events from API
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await calendarEventsAPI.getAll();
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        setEvents([
+          {
+            id: 1,
+            event_name: 'Green Business Certification',
+            date: '2026-03-15',
+            duration: '3 days',
+            pillar: '5. Climate-Smart Industries and Services',
+            office: 'City Business Office',
+            status: 'Completed'
+          }
+        ]);
+      }
+    };
+
+    loadEvents();
+  }, []);
+
+  // Calculate projects from events
+  const [projects, setProjects] = useState([]);
+  
+  useEffect(() => {
+    const calculatedProjects = calculateProjectsFromEvents(events);
+    setProjects(calculatedProjects);
+  }, [events]);
+
+  // Calculate stats from projects
+  const stats = projects.length > 0 ? {
+    leadingOffice: projects.reduce((prev, current) => 
+      prev.accomplishment > current.accomplishment ? prev : current
+    ).office,
+    overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
+    totalDepartments: projects.length,
+    totalProjects: events.filter(event => event.pillar && event.pillar.includes('Climate-Smart Industries')).length
+  } : {
+    leadingOffice: 'No data',
+    overallAccomplishment: 0,
+    totalDepartments: 0,
+    totalProjects: 0
+  };
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);

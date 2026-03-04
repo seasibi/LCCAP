@@ -28,11 +28,21 @@ const Calendar = ({ onLogout, navigateToPage }) => {
   const [formData, setFormData] = useState({
     event_name: '',
     pillar: '',
+    program: '',
     office: '',
     date: '',
     duration: '',
     status: 'Planned'
   });
+  
+  // Filtering state
+  const [filters, setFilters] = useState({
+    pillar: '',
+    office: '',
+    status: '',
+    searchTerm: ''
+  });
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   // Load events from API on mount
   useEffect(() => {
@@ -50,7 +60,47 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     loadEvents();
   }, []);
 
+  // Apply filters whenever events or filters change
+  useEffect(() => {
+    let filtered = [...events];
+    
+    // Filter by pillar
+    if (filters.pillar) {
+      filtered = filtered.filter(event => event.pillar === filters.pillar);
+    }
+    
+    // Filter by office
+    if (filters.office) {
+      filtered = filtered.filter(event => event.office === filters.office);
+    }
+    
+    // Filter by status
+    if (filters.status) {
+      filtered = filtered.filter(event => event.status === filters.status);
+    }
+    
+    // Filter by search term
+    if (filters.searchTerm) {
+      filtered = filtered.filter(event => 
+        event.event_name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        event.office.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredEvents(filtered);
+  }, [events, filters]);
+
   const pillars = ['1. Food Security', '2. Water Sufficiency', '3. Ecological and Environmental stability', '4. Human Security', '5. Climate-Smart Industries and Services', '6. Sustainable Energy', '7. Knowledge and Capacity Development'];
+  
+  const programs = {
+    '1. Food Security': ['Urban Garden Program', 'Feeding Program', 'Nutrition Education'],
+    '2. Water Sufficiency': ['Water Supply Expansion', 'Water Treatment Plant Upgrade', 'Watershed Protection'],
+    '3. Ecological and Environmental stability': ['Tree Planting Program', 'Park Development', 'Biodiversity Conservation'],
+    '4. Human Security': ['Health Services Enhancement', 'Livelihood Programs', 'Community Safety'],
+    '5. Climate-Smart Industries and Services': ['Green Business Certification', 'Industrial Zone Development', 'Sustainable Tourism'],
+    '6. Sustainable Energy': ['Solar Street Lighting', 'Renewable Energy Program', 'Energy Efficiency'],
+    '7. Knowledge and Capacity Development': ['Climate Change Training', 'Capacity Building Program', 'Public Awareness']
+  };
   const offices = [
     'City Mayor\'s Office (CMO)',
     'City Human Resource Management Office (CHRMO)',
@@ -73,22 +123,31 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  const getFirstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-
-  const handleAddEvent = (day) => {
-    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+  const openEventForm = (date, event = null) => {
     setSelectedDate(date);
-    setEditingEvent(null);
-    setFormData({
-      event_name: '',
-      pillar: '',
-      office: '',
-      date: date.toISOString().split('T')[0],
-      duration: '',
-      status: 'Planned'
-    });
+    if (event) {
+      setEditingEvent(event);
+      setFormData({
+        event_name: event.event_name,
+        pillar: event.pillar,
+        program: event.program || '',
+        office: event.office,
+        date: event.date,
+        duration: event.duration,
+        status: event.status
+      });
+    } else {
+      setEditingEvent(null);
+      setFormData({
+        event_name: '',
+        pillar: '',
+        program: '',
+        office: '',
+        date: date.toISOString().split('T')[0],
+        duration: '',
+        status: 'Planned'
+      });
+    }
     setShowEventForm(true);
   };
 
@@ -97,6 +156,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     setFormData({
       event_name: event.event_name,
       pillar: event.pillar,
+      program: event.program || '',
       office: event.office,
       date: event.date,
       duration: event.duration,
@@ -400,7 +460,12 @@ const Calendar = ({ onLogout, navigateToPage }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Filter by Pillar
                   </label>
-                  <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                  <select 
+                    value={filters.pillar}
+                    onChange={(e) => setFilters({...filters, pillar: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">All Pillars</option>
                     {pillars.map(pillar => (
                       <option key={pillar} value={pillar}>{pillar}</option>
                     ))}
@@ -411,7 +476,11 @@ const Calendar = ({ onLogout, navigateToPage }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Filter by Office
                   </label>
-                  <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                  <select 
+                    value={filters.office}
+                    onChange={(e) => setFilters({...filters, office: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
                     <option value="">All Offices</option>
                     {offices.map(office => (
                       <option key={office} value={office}>{office}</option>
@@ -419,20 +488,57 @@ const Calendar = ({ onLogout, navigateToPage }) => {
                   </select>
                 </div>
                 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Filter by Status
+                  </label>
+                  <select 
+                    value={filters.status}
+                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">All Status</option>
+                    <option value="Planned">Planned</option>
+                    <option value="Ongoing">Ongoing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Moved">Moved</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Search Events
+                  </label>
+                  <input
+                    type="text"
+                    value={filters.searchTerm}
+                    onChange={(e) => setFilters({...filters, searchTerm: e.target.value})}
+                    placeholder="Search by event name or office..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+                
                 <div className="pt-4">
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors duration-200 font-medium">
-                    Apply Filters
+                  <button 
+                    onClick={() => setFilters({ pillar: '', office: '', status: '', searchTerm: '' })}
+                    className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors duration-200 font-medium"
+                  >
+                    Clear Filters
                   </button>
                 </div>
                 
                 {/* Events List */}
                 <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Events List</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    Events List {filteredEvents.length !== events.length && `(${filteredEvents.length}/${events.length})`}
+                  </h3>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {events.length === 0 ? (
-                      <p className="text-gray-500 text-sm text-center py-4">No events scheduled</p>
+                    {filteredEvents.length === 0 ? (
+                      <p className="text-gray-500 text-sm text-center py-4">
+                        {events.length === 0 ? 'No events scheduled' : 'No events match current filters'}
+                      </p>
                     ) : (
-                      events
+                      filteredEvents
                         .sort((a, b) => new Date(a.date) - new Date(b.date))
                         .map(event => (
                           <div key={event.id} className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
@@ -509,12 +615,29 @@ const Calendar = ({ onLogout, navigateToPage }) => {
                   </label>
                   <select
                     value={formData.pillar}
-                    onChange={(e) => setFormData({...formData, pillar: e.target.value})}
+                    onChange={(e) => setFormData({...formData, pillar: e.target.value, program: ''})}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="">Select Pillar</option>
                     {pillars.map(pillar => (
                       <option key={pillar} value={pillar}>{pillar}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Program
+                  </label>
+                  <select
+                    value={formData.program}
+                    onChange={(e) => setFormData({...formData, program: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    disabled={!formData.pillar}
+                  >
+                    <option value="">Select Program</option>
+                    {formData.pillar && programs[formData.pillar]?.map(program => (
+                      <option key={program} value={program}>{program}</option>
                     ))}
                   </select>
                 </div>

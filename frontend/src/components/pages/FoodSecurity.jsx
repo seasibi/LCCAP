@@ -1,54 +1,144 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { calendarEventsAPI } from '../../services/api';
 
 const FoodSecurity = () => {
   const { showSuccess, showError, showInfo } = useToast();
   
-  // Mock data - replace with actual API calls
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      office: 'City Agriculture Office',
-      projectName: 'Urban Garden Program',
-      accomplishment: 85,
-      status: 'Ongoing',
-      target: '100 households',
-      actual: '85 households',
-      quarter: 'Q1 2026'
-    },
-    {
-      id: 2,
-      office: 'City Social Welfare Office',
-      projectName: 'Feeding Program',
-      accomplishment: 92,
-      status: 'Ongoing',
-      target: '500 beneficiaries',
-      actual: '460 beneficiaries',
-      quarter: 'Q1 2026'
-    },
-    {
-      id: 3,
-      office: 'City Health Office',
-      projectName: 'Nutrition Education',
-      accomplishment: 78,
-      status: 'Ongoing',
-      target: '2000 participants',
-      actual: '1560 participants',
-      quarter: 'Q1 2026'
-    }
-  ]);
+  // State for events
+  const [events, setEvents] = useState([]);
+  
+  // Calculate projects from events
+  const calculateProjectsFromEvents = (eventsData) => {
+    const foodSecurityEvents = eventsData.filter(event => event.pillar === 'Food Security');
+    
+    // Group events by office to create projects
+    const officeGroups = foodSecurityEvents.reduce((acc, event) => {
+      const office = event.office || 'Unassigned';
+      if (!acc[office]) {
+        acc[office] = {
+          id: Math.random(),
+          office: office,
+          projectName: `${office} Programs`,
+          events: [],
+          accomplishment: 0,
+          status: 'Ongoing',
+          target: 'Multiple activities',
+          actual: '0 completed',
+          quarter: 'Q1 2026'
+        };
+      }
+      acc[office].events.push(event);
+      return acc;
+    }, {});
 
-  const [stats, setStats] = useState({
-    leadingOffice: 'City Social Welfare Office',
-    overallAccomplishment: 85,
-    totalDepartments: 3,
-    totalProjects: 12
-  });
+    // Calculate accomplishment for each office
+    Object.values(officeGroups).forEach(project => {
+      const totalEvents = project.events.length;
+      const completedEvents = project.events.filter(event => event.status === 'Completed').length;
+      project.accomplishment = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
+      project.actual = `${completedEvents}/${totalEvents} completed`;
+      project.status = completedEvents === totalEvents ? 'Completed' : 'Ongoing';
+    });
+
+    return Object.values(officeGroups);
+  };
+
+  // Load events from API
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await calendarEventsAPI.getAll();
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        // Use mock data if API fails
+        setEvents([
+          {
+            id: 1,
+            event_name: 'Urban Garden Program',
+            date: '2026-03-15',
+            duration: '3 days',
+            pillar: 'Food Security',
+            office: 'City Agriculture Office',
+            status: 'Completed'
+          },
+          {
+            id: 2,
+            event_name: 'Feeding Program Launch',
+            date: '2026-03-20',
+            duration: '1 week',
+            pillar: 'Food Security',
+            office: 'City Social Welfare Office',
+            status: 'Ongoing'
+          }
+        ]);
+      }
+    };
+
+    loadEvents();
+  }, []);
+
+  // Calculate projects from events
+  const [projects, setProjects] = useState([]);
+  
+  useEffect(() => {
+    const calculatedProjects = calculateProjectsFromEvents(events);
+    setProjects(calculatedProjects);
+  }, [events]);
+
+  // Calculate stats from projects
+  const stats = projects.length > 0 ? {
+    leadingOffice: projects.reduce((prev, current) => 
+      prev.accomplishment > current.accomplishment ? prev : current
+    ).office,
+    overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
+    totalDepartments: projects.length,
+    totalProjects: events.filter(event => event.pillar === 'Food Security').length
+  } : {
+    leadingOffice: 'No data',
+    overallAccomplishment: 0,
+    totalDepartments: 0,
+    totalProjects: 0
+  };
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  
+  // Filtering state
+  const [filters, setFilters] = useState({
+    office: '',
+    status: '',
+    searchTerm: ''
+  });
+  const [filteredProjects, setFilteredProjects] = useState([]);
+
+  // Apply filters whenever projects or filters change
+  useEffect(() => {
+    let filtered = [...projects];
+    
+    // Filter by office
+    if (filters.office) {
+      filtered = filtered.filter(project => project.office === filters.office);
+    }
+    
+    // Filter by status
+    if (filters.status) {
+      filtered = filtered.filter(project => project.status === filters.status);
+    }
+    
+    // Filter by search term
+    if (filters.searchTerm) {
+      filtered = filtered.filter(project => 
+        project.projectName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        project.office.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredProjects(filtered);
+  }, [projects, filters]);
 
   const handleAdd = () => {
     setIsAddModalOpen(true);
@@ -160,6 +250,61 @@ const FoodSecurity = () => {
         </button>
       </div>
 
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6 border border-gray-200">
+        <div className="grid grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Office</label>
+            <select
+              value={filters.office}
+              onChange={(e) => setFilters({...filters, office: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">All Offices</option>
+              {[...new Set(projects.map(p => p.office))].map(office => (
+                <option key={office} value={office}>{office}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({...filters, status: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">All Status</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Completed">Completed</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search Projects</label>
+            <input
+              type="text"
+              value={filters.searchTerm}
+              onChange={(e) => setFilters({...filters, searchTerm: e.target.value})}
+              placeholder="Search by project name or office..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => setFilters({ office: '', status: '', searchTerm: '' })}
+              className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+        {filteredProjects.length !== projects.length && (
+          <p className="text-sm text-gray-600 mt-2">
+            Showing {filteredProjects.length} of {projects.length} projects
+          </p>
+        )}
+      </div>
+
       {/* Projects Table */}
       <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -176,7 +321,14 @@ const FoodSecurity = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {projects.map((project) => (
+              {filteredProjects.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                    {projects.length === 0 ? 'No projects available' : 'No projects match current filters'}
+                  </td>
+                </tr>
+              ) : (
+                filteredProjects.map((project) => (
                 <tr key={project.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {project.office}
@@ -232,7 +384,8 @@ const FoodSecurity = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

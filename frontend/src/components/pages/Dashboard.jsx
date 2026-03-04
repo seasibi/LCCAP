@@ -259,11 +259,11 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  const getFirstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-
   const generateCalendarDays = () => {
+    const getFirstDayOfMonth = (date) => {
+      return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    };
+    
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
     const days = [];

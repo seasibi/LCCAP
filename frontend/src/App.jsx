@@ -7,6 +7,14 @@ import Accomplishment from './components/pages/Accomplishment';
 import Calendar from './components/pages/Calendar';
 import ReportManagement from './components/pages/ReportManagement';
 import UserManagement from './components/pages/UserManagement';
+import FoodSecurity from './components/pages/FoodSecurity';
+import WaterSufficiency from './components/pages/WaterSufficiency';
+import EcologicalStability from './components/pages/EcologicalStability';
+import HumanSecurity from './components/pages/HumanSecurity';
+import ClimateSmartIndustries from './components/pages/ClimateSmartIndustries';
+import SustainableEnergy from './components/pages/SustainableEnergy';
+import KnowledgeCapacity from './components/pages/KnowledgeCapacity';
+import DataManagement from './components/pages/DataManagement';
 import MainLayout from './components/layout/MainLayout';
 import AuthLayout from './components/layout/AuthLayout';
 import { routes } from './router/RouteConfig';
@@ -33,7 +41,9 @@ function AppContent() {
     setCurrentPage('login');
   };
 
-  const navigateToPage = (pageId) => {
+  const navigateToPage = (pageOrPath) => {
+    // Convert path to page ID (e.g., '/food-security' -> 'food-security')
+    const pageId = pageOrPath.startsWith('/') ? pageOrPath.substring(1) : pageOrPath;
     setCurrentPage(pageId);
   };
 
@@ -54,6 +64,22 @@ function AppContent() {
         return <ReportManagement onLogout={handleLogout} navigateToPage={navigateToPage} />;
       case 'user-management':
         return <UserManagement onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'food-security':
+        return <FoodSecurity onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'water-sufficiency':
+        return <WaterSufficiency onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'ecological-stability':
+        return <EcologicalStability onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'human-security':
+        return <HumanSecurity onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'climate-smart-industries':
+        return <ClimateSmartIndustries onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'sustainable-energy':
+        return <SustainableEnergy onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'knowledge-capacity':
+        return <KnowledgeCapacity onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'data-management':
+        return <DataManagement onLogout={handleLogout} navigateToPage={navigateToPage} />;
       default:
         return <Dashboard onLogout={handleLogout} navigateToPage={navigateToPage} />;
     }

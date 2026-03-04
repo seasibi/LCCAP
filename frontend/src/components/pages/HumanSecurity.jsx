@@ -1,12 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useToast } from '../../context/ToastContext';
+import { calendarEventsAPI } from '../../services/api';
 
 const HumanSecurity = () => {
-  const [projects, setProjects] = useState([
-    { id: 1, office: 'City Health Office', projectName: 'Health Services Enhancement', accomplishment: 85, status: 'Ongoing', target: '10000 patients', actual: '8500 patients served', quarter: 'Q1 2026' },
-    { id: 2, office: 'City Social Welfare Office', projectName: 'Livelihood Programs', accomplishment: 78, status: 'Ongoing', target: '500 beneficiaries', actual: '390 beneficiaries', quarter: 'Q1 2026' }
-  ]);
+  const { showSuccess, showError, showInfo } = useToast();
+  
+  // State for events
+  const [events, setEvents] = useState([]);
+  
+  // Calculate projects from events
+  const calculateProjectsFromEvents = (eventsData) => {
+    const humanSecurityEvents = eventsData.filter(event => 
+      event.pillar && event.pillar.includes('Human Security')
+    );
+    
+    // Group events by office to create projects
+    const officeGroups = humanSecurityEvents.reduce((acc, event) => {
+      const office = event.office || 'Unassigned';
+      if (!acc[office]) {
+        acc[office] = {
+          id: Math.random(),
+          office: office,
+          projectName: `${office} Programs`,
+          events: [],
+          accomplishment: 0,
+          status: 'Ongoing',
+          target: 'Multiple activities',
+          actual: '0 completed',
+          quarter: 'Q1 2026'
+        };
+      }
+      acc[office].events.push(event);
+      return acc;
+    }, {});
 
-  const [stats] = useState({ leadingOffice: 'City Health Office', overallAccomplishment: 82, totalDepartments: 2, totalProjects: 5 });
+    // Calculate accomplishment for each office
+    Object.values(officeGroups).forEach(project => {
+      const totalEvents = project.events.length;
+      const completedEvents = project.events.filter(event => event.status === 'Completed').length;
+      project.accomplishment = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
+      project.actual = `${completedEvents}/${totalEvents} completed`;
+      project.status = completedEvents === totalEvents ? 'Completed' : 'Ongoing';
+    });
+
+    return Object.values(officeGroups);
+  };
+
+  // Load events from API
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await calendarEventsAPI.getAll();
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        setEvents([
+          {
+            id: 1,
+            event_name: 'Health Services Enhancement',
+            date: '2026-03-15',
+            duration: '3 days',
+            pillar: '4. Human Security',
+            office: 'City Health Office',
+            status: 'Completed'
+          }
+        ]);
+      }
+    };
+
+    loadEvents();
+  }, []);
+
+  // Calculate projects from events
+  const [projects, setProjects] = useState([]);
+  
+  useEffect(() => {
+    const calculatedProjects = calculateProjectsFromEvents(events);
+    setProjects(calculatedProjects);
+  }, [events]);
+
+  // Calculate stats from projects
+  const stats = projects.length > 0 ? {
+    leadingOffice: projects.reduce((prev, current) => 
+      prev.accomplishment > current.accomplishment ? prev : current
+    ).office,
+    overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
+    totalDepartments: projects.length,
+    totalProjects: events.filter(event => event.pillar && event.pillar.includes('Human Security')).length
+  } : {
+    leadingOffice: 'No data',
+    overallAccomplishment: 0,
+    totalDepartments: 0,
+    totalProjects: 0
+  };
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);

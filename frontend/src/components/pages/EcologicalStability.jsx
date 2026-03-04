@@ -1,38 +1,100 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { calendarEventsAPI } from '../../services/api';
 
 const EcologicalStability = () => {
   const { showSuccess, showError, showInfo } = useToast();
   
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      office: 'City Environment Office',
-      projectName: 'Tree Planting Program',
-      accomplishment: 88,
-      status: 'Ongoing',
-      target: '10000 trees',
-      actual: '8800 trees planted',
-      quarter: 'Q1 2026'
-    },
-    {
-      id: 2,
-      office: 'City Parks Office',
-      projectName: 'Park Development',
-      accomplishment: 75,
-      status: 'Ongoing',
-      target: '5 parks',
-      actual: '4 parks completed',
-      quarter: 'Q1 2026'
-    }
-  ]);
+  // State for events
+  const [events, setEvents] = useState([]);
+  
+  // Calculate projects from events
+  const calculateProjectsFromEvents = (eventsData) => {
+    const ecologicalEvents = eventsData.filter(event => 
+      event.pillar && (event.pillar.includes('Ecological') || event.pillar.includes('Environmental'))
+    );
+    
+    // Group events by office to create projects
+    const officeGroups = ecologicalEvents.reduce((acc, event) => {
+      const office = event.office || 'Unassigned';
+      if (!acc[office]) {
+        acc[office] = {
+          id: Math.random(),
+          office: office,
+          projectName: `${office} Programs`,
+          events: [],
+          accomplishment: 0,
+          status: 'Ongoing',
+          target: 'Multiple activities',
+          actual: '0 completed',
+          quarter: 'Q1 2026'
+        };
+      }
+      acc[office].events.push(event);
+      return acc;
+    }, {});
 
-  const [stats, setStats] = useState({
-    leadingOffice: 'City Environment Office',
-    overallAccomplishment: 82,
-    totalDepartments: 2,
-    totalProjects: 6
-  });
+    // Calculate accomplishment for each office
+    Object.values(officeGroups).forEach(project => {
+      const totalEvents = project.events.length;
+      const completedEvents = project.events.filter(event => event.status === 'Completed').length;
+      project.accomplishment = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
+      project.actual = `${completedEvents}/${totalEvents} completed`;
+      project.status = completedEvents === totalEvents ? 'Completed' : 'Ongoing';
+    });
+
+    return Object.values(officeGroups);
+  };
+
+  // Load events from API
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await calendarEventsAPI.getAll();
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        setEvents([
+          {
+            id: 1,
+            event_name: 'Tree Planting Program',
+            date: '2026-03-15',
+            duration: '3 days',
+            pillar: '3. Ecological and Environmental stability',
+            office: 'City Environment Office',
+            status: 'Completed'
+          }
+        ]);
+      }
+    };
+
+    loadEvents();
+  }, []);
+
+  // Calculate projects from events
+  const [projects, setProjects] = useState([]);
+  
+  useEffect(() => {
+    const calculatedProjects = calculateProjectsFromEvents(events);
+    setProjects(calculatedProjects);
+  }, [events]);
+
+  // Calculate stats from projects
+  const stats = projects.length > 0 ? {
+    leadingOffice: projects.reduce((prev, current) => 
+      prev.accomplishment > current.accomplishment ? prev : current
+    ).office,
+    overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
+    totalDepartments: projects.length,
+    totalProjects: events.filter(event => 
+      event.pillar && (event.pillar.includes('Ecological') || event.pillar.includes('Environmental'))
+    ).length
+  } : {
+    leadingOffice: 'No data',
+    overallAccomplishment: 0,
+    totalDepartments: 0,
+    totalProjects: 0
+  };
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
