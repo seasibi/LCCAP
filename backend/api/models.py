@@ -18,6 +18,7 @@ class CalendarEvent(models.Model):
         ('Planned', 'Planned'),
         ('Ongoing', 'Ongoing'),
         ('Completed', 'Completed'),
+        ('Moved', 'Moved'),
     ]
     
     DURATION_CHOICES = [
