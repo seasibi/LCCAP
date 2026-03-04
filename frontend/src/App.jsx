@@ -10,9 +10,14 @@ import UserManagement from './components/pages/UserManagement';
 import MainLayout from './components/layout/MainLayout';
 import AuthLayout from './components/layout/AuthLayout';
 import { routes } from './router/RouteConfig';
+import { ToastProvider, useToast } from './context/ToastContext';
+import ToastContainer from './components/common/ToastContainer';
 import './App.css'
 
-function App() {
+// AppContent component that uses toast context
+function AppContent() {
+  const { toasts, removeToast } = useToast();
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState('dashboard');
 
@@ -40,17 +45,17 @@ function App() {
 
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onLogout={handleLogout} navigateToPage={navigateToPage} />;
       case 'accomplishment':
-        return <Accomplishment />;
+        return <Accomplishment onLogout={handleLogout} navigateToPage={navigateToPage} />;
       case 'calendar':
-        return <Calendar />;
+        return <Calendar onLogout={handleLogout} navigateToPage={navigateToPage} />;
       case 'report-management':
-        return <ReportManagement />;
+        return <ReportManagement onLogout={handleLogout} navigateToPage={navigateToPage} />;
       case 'user-management':
-        return <UserManagement />;
+        return <UserManagement onLogout={handleLogout} navigateToPage={navigateToPage} />;
       default:
-        return <Dashboard />;
+        return <Dashboard onLogout={handleLogout} navigateToPage={navigateToPage} />;
     }
   };
 
@@ -74,8 +79,18 @@ function App() {
             </Suspense>
           </AuthLayout>
         )}
+        <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
       </div>
     </ErrorBoundary>
+  );
+}
+
+// Main App component wrapped with ToastProvider
+function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const UserManagement = () => {
+const UserManagement = ({ onLogout, navigateToPage }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);

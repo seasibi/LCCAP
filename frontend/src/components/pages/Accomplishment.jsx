@@ -1,8 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const Accomplishment = () => {
-  console.log('Accomplishment component mounted');
-  
+const Accomplishment = ({ onLogout, navigateToPage }) => {
+  // Department/Office options
+  const departmentOptions = [
+    'City Mayor\'s Office (CMO)',
+    'City Human Resource Management Office (CHRMO)',
+    'City General Services Office (CGSO)',
+    'City Building and Architecture Office (CBAO)',
+    'City Planning, Development and Sustainability Office (CPDSO)',
+    'City Disaster Risk Reduction and Management Office (CDRRMO)',
+    'City Veterinary and Agriculture Office (CVAO)',
+    'City Social Welfare and Development Office (CSWDO)',
+    'City Health Services Office (CHSO)',
+    'City Environment and Parks Management Office (CEPMO)',
+    'City Engineering Office',
+    'Bureau of Fire Protection (BFP)',
+    'Benguet Electric Cooperative (BENECO)',
+    'Department of Public Works and Highways (DPWH)',
+    'Human Resource Management Office (HRMO)'
+  ];
+
+  // Classification options
+  const classificationOptions = [
+    'Adaptation','Mitigation'
+  ];
+
   const [formData, setFormData] = useState({
     accomplishmentNumber: '',
     department: '',
@@ -23,11 +45,6 @@ const Accomplishment = () => {
 
   // State for stored reports
   const [storedReports, setStoredReports] = useState([]);
-
-  // Debug: Log when storedReports changes
-  useEffect(() => {
-    console.log('Current stored reports:', storedReports);
-  }, [storedReports]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -168,14 +185,19 @@ const Accomplishment = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Department/Office
                       </label>
-                      <input
-                        type="text"
+                      <select
                         name="department"
                         value={formData.department}
                         onChange={handleInputChange}
                         className="w-full h-9 px-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        placeholder="Enter department or office"
-                      />
+                      >
+                        <option value="">Select Department/Office</option>
+                        {departmentOptions.map((dept, index) => (
+                          <option key={index} value={dept}>
+                            {dept}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
@@ -251,14 +273,19 @@ const Accomplishment = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Classification
                       </label>
-                      <input
-                        type="text"
+                      <select
                         name="classification"
                         value={formData.classification}
                         onChange={handleInputChange}
                         className="w-full h-9 px-2 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        placeholder="Enter classification"
-                      />
+                      >
+                        <option value="">Select Classification</option>
+                        {classificationOptions.map((classification, index) => (
+                          <option key={index} value={classification}>
+                            {classification}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>

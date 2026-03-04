@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { calendarEventsAPI } from '../../services/api';
 
 const PlusIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,14 +19,14 @@ const DeleteIcon = () => (
   </svg>
 );
 
-const Calendar = () => {
+const Calendar = ({ onLogout, navigateToPage }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showEventForm, setShowEventForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
   const [events, setEvents] = useState([]);
   const [formData, setFormData] = useState({
-    eventName: '',
+    event_name: '',
     pillar: '',
     office: '',
     date: '',
@@ -33,21 +34,40 @@ const Calendar = () => {
     status: 'Planned'
   });
 
-  // Load events from localStorage on mount
+  // Load events from API on mount
   useEffect(() => {
-    const savedEvents = localStorage.getItem('calendarEvents');
-    if (savedEvents) {
-      setEvents(JSON.parse(savedEvents));
-    }
+    const loadEvents = async () => {
+      try {
+        console.log('Calendar: Loading events from API...');
+        const response = await calendarEventsAPI.getAll();
+        console.log('Calendar: Loaded events from API:', response.data);
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Calendar: Error loading events from API:', error);
+      }
+    };
+    
+    loadEvents();
   }, []);
 
-  // Save events to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('calendarEvents', JSON.stringify(events));
-  }, [events]);
-
-  const pillars = ['Food Security', 'Water Sufficiency', 'Ecological and Environmental stability', 'Human Security', 'Climate-Smart Industries and Services', 'Sustainable Energy', 'Knowledge and Capacity Development'];
-  const offices = ['CEPMO', 'CEO', 'CBAO', 'CVAO', 'BWD', 'CDRRMO'];
+  const pillars = ['1. Food Security', '2. Water Sufficiency', '3. Ecological and Environmental stability', '4. Human Security', '5. Climate-Smart Industries and Services', '6. Sustainable Energy', '7. Knowledge and Capacity Development'];
+  const offices = [
+    'City Mayor\'s Office (CMO)',
+    'City Human Resource Management Office (CHRMO)',
+    'City General Services Office (CGSO)',
+    'City Building and Architecture Office (CBAO)',
+    'City Planning, Development and Sustainability Office (CPDSO)',
+    'City Disaster Risk Reduction and Management Office (CDRRMO)',
+    'City Veterinary and Agriculture Office (CVAO)',
+    'City Social Welfare and Development Office (CSWDO)',
+    'City Health Services Office (CHSO)',
+    'City Environment and Parks Management Office (CEPMO)',
+    'City Engineering Office',
+    'Bureau of Fire Protection (BFP)',
+    'Benguet Electric Cooperative (BENECO)',
+    'Department of Public Works and Highways (DPWH)',
+    'Human Resource Management Office (HRMO)'
+  ];
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -62,7 +82,7 @@ const Calendar = () => {
     setSelectedDate(date);
     setEditingEvent(null);
     setFormData({
-      eventName: '',
+      event_name: '',
       pillar: '',
       office: '',
       date: date.toISOString().split('T')[0],
@@ -75,7 +95,7 @@ const Calendar = () => {
   const handleEditEvent = (event) => {
     setEditingEvent(event);
     setFormData({
-      eventName: event.eventName,
+      event_name: event.event_name,
       pillar: event.pillar,
       office: event.office,
       date: event.date,
@@ -85,45 +105,60 @@ const Calendar = () => {
     setShowEventForm(true);
   };
 
-  const handleDeleteEvent = (eventId) => {
+  const handleDeleteEvent = async (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
-      setEvents(prev => prev.filter(event => event.id !== eventId));
+      try {
+        console.log('Calendar: Deleting event from API:', eventId);
+        await calendarEventsAPI.delete(eventId);
+        console.log('Calendar: Event deleted successfully');
+        // Refresh events list
+        const response = await calendarEventsAPI.getAll();
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Calendar: Error deleting event:', error);
+        alert('Error deleting event. Please try again.');
+      }
     }
   };
 
-  const handleSaveEvent = () => {
-    if (!formData.eventName || !formData.date) {
+  const handleSaveEvent = async () => {
+    if (!formData.event_name || !formData.date) {
       alert('Please fill in event name and date');
       return;
     }
 
-    if (editingEvent) {
-      // Update existing event
-      setEvents(prev => prev.map(event => 
-        event.id === editingEvent.id 
-          ? { ...event, ...formData }
-          : event
-      ));
-    } else {
-      // Add new event
-      const newEvent = {
-        id: Date.now(),
-        ...formData
-      };
-      setEvents(prev => [...prev, newEvent]);
-    }
+    try {
+      if (editingEvent) {
+        // Update existing event
+        console.log('Calendar: Updating event in API:', editingEvent.id, formData);
+        await calendarEventsAPI.update(editingEvent.id, formData);
+        console.log('Calendar: Event updated successfully');
+      } else {
+        // Add new event
+        console.log('Calendar: Creating new event in API:', formData);
+        await calendarEventsAPI.create(formData);
+        console.log('Calendar: Event created successfully');
+      }
 
-    // Reset form
-    setShowEventForm(false);
-    setEditingEvent(null);
-    setFormData({
-      eventName: '',
-      pillar: '',
-      office: '',
-      date: '',
-      duration: '',
-      status: 'Planned'
-    });
+      // Refresh events list
+      const response = await calendarEventsAPI.getAll();
+      setEvents(response.data);
+
+      // Reset form
+      setShowEventForm(false);
+      setEditingEvent(null);
+      setFormData({
+        event_name: '',
+        pillar: '',
+        office: '',
+        date: '',
+        duration: '',
+        status: 'Planned'
+      });
+    } catch (error) {
+      console.error('Calendar: Error saving event:', error);
+      alert('Error saving event. Please try again.');
+    }
   };
 
   const handleCancelEvent = () => {
@@ -264,8 +299,8 @@ const Calendar = () => {
       days.push(
         <div 
           key={day} 
-          className={`aspect-square flex flex-col border rounded-lg cursor-pointer transition-all duration-200 text-sm font-medium relative
-            ${isToday ? 'bg-green-600 text-white border-green-600 hover:bg-green-700' : 'bg-white text-gray-700 border-gray-200 hover:bg-green-50 hover:border-green-300'}`}
+          className={`aspect-square flex flex-col border-2 border-green-300 rounded-lg cursor-pointer transition-all duration-200 text-sm font-medium relative
+            ${isToday ? 'bg-green-100 text-green-800 border-green-600 hover:bg-green-200' : 'bg-green-50 text-gray-700 border-green-400 hover:bg-green-100 hover:border-green-500'}`}
         >
           <div className="flex justify-between items-start p-1">
             <span className="text-xs">{day}</span>
@@ -290,13 +325,13 @@ const Calendar = () => {
                 <div 
                   key={event.id}
                   className={`text-xs truncate mb-1 px-1 py-0.5 rounded font-medium ${colors.bg} ${colors.text} ${colors.border}`}
-                  title={`${event.eventName} (${event.duration})`}
+                  title={`${event.event_name} (${event.duration})`}
                   style={{
                     gridColumn: `span ${Math.min(span, 7)}`,
                     borderLeft: `3px solid ${isToday ? '#16a34a' : colors.borderHex}`
                   }}
                 >
-                  {isEventStart(event, day) ? `${event.eventName} (${event.duration})` : '→'}
+                  {isEventStart(event, day) ? `${event.event_name} (${event.duration})` : '→'}
                 </div>
               );
             })}
@@ -308,9 +343,9 @@ const Calendar = () => {
                 <div 
                   key={event.id}
                   className={`text-xs truncate mb-1 px-1 py-0.5 rounded ${colors.bg} ${colors.text}`}
-                  title={event.eventName}
+                  title={event.event_name}
                 >
-                  {event.eventName}
+                  {event.event_name}
                 </div>
               );
             })}
@@ -352,7 +387,7 @@ const Calendar = () => {
     <div className="h-full p-6">
       <div className="h-full grid grid-cols-10 gap-6">
         {/* Left Panel - Filters / Event Form (30%) */}
-        <div className="col-span-3 bg-white rounded-lg shadow-md p-6 overflow-hidden flex flex-col">
+        <div className="col-span-3 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col">
           {!showEventForm ? (
             <>
               <div className="mb-6">
@@ -366,7 +401,6 @@ const Calendar = () => {
                     Filter by Pillar
                   </label>
                   <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                    <option value="">All Pillars</option>
                     {pillars.map(pillar => (
                       <option key={pillar} value={pillar}>{pillar}</option>
                     ))}
@@ -404,7 +438,7 @@ const Calendar = () => {
                           <div key={event.id} className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
                             <div className="flex justify-between items-start mb-2">
                               <div className="flex-1">
-                                <h4 className="text-sm font-medium text-gray-900 truncate">{event.eventName}</h4>
+                                <h4 className="text-sm font-medium text-gray-900 truncate">{event.event_name}</h4>
                                 <p className="text-xs text-gray-500">{new Date(event.date).toLocaleDateString()}</p>
                                 <p className="text-xs text-gray-600">{event.pillar} • {event.office}</p>
                               </div>
@@ -462,8 +496,8 @@ const Calendar = () => {
                   </label>
                   <input
                     type="text"
-                    value={formData.eventName}
-                    onChange={(e) => setFormData({...formData, eventName: e.target.value})}
+                    value={formData.event_name}
+                    onChange={(e) => setFormData({...formData, event_name: e.target.value})}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     placeholder="Enter event name"
                   />
@@ -517,15 +551,22 @@ const Calendar = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Duration
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.duration}
                     onChange={(e) => setFormData({...formData, duration: e.target.value})}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    placeholder="e.g., 2 days, 1 week, 3 hours, custom duration"
-                  />
+                  >
+                    <option value="">Single Day</option>
+                    <option value="2 days">2 Days</option>
+                    <option value="3 days">3 Days</option>
+                    <option value="4 days">4 Days</option>
+                    <option value="5 days">5 Days</option>
+                    <option value="1 week">1 Week</option>
+                    <option value="2 weeks">2 Weeks</option>
+                    <option value="1 month">1 Month</option>
+                  </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Enter any duration (e.g., 2 days, 1 week, 3 hours, etc.)
+                    Multi-day events will appear across consecutive days
                   </p>
                 </div>
                 
@@ -565,7 +606,7 @@ const Calendar = () => {
         </div>
 
         {/* Right Panel - Calendar (70%) */}
-        <div className="col-span-7 bg-white rounded-lg shadow-md p-6 overflow-hidden flex flex-col">
+        <div className="col-span-7 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <button 
               className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors" 
