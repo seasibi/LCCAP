@@ -19,16 +19,16 @@ const Header = ({ title, showSidebarToggle = false, onSidebarToggle = null, mini
     return (
       <header className="fixed top-0 left-0 right-0 z-60 w-full h-16 bg-gradient-to-r from-green-700 to-green-600 text-white shadow-lg border-2 border-green-400/40 border-b-4 border-green-400/60">
         <div className="flex items-center gap-6 pl-4">
-          <div className="text-xl bg-white/10 p-1 rounded-full flex items-center justify-center w-10 h-10 shadow-md flex-shrink-0">
+          <div className="text-xl bg-white/10 p-1 rounded-full flex items-center justify-center w-14 h-14 shadow-md flex-shrink-0">
             <img 
               src={baguioLogo} 
               alt="Baguio City Logo" 
-              className="w-8 h-8 rounded-full object-cover"
+              className="w-12 h-12 rounded-full object-cover"
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold mb-0 text-white/95 shadow-sm">LCCAP</h1>
-            <p className="text-xs mb-0 text-white/80 shadow-sm">Local Climate Change Action Plan</p>
+            <h1 className="text-xl mt-1 font-bold mb-0 text-white/95 shadow-sm">Local Climate Change Action Plan</h1>
+            <p className="text-xs mb-0 text-white/80 shadow-sm">City Environment and Parks Management Office - City Government of Baguio</p>
           </div>
         </div>
       </header>
@@ -49,16 +49,16 @@ const Header = ({ title, showSidebarToggle = false, onSidebarToggle = null, mini
             </button>
           )}
           <div className="flex items-center gap-6">
-            <div className="text-xl bg-white/10 p-1 rounded-full flex items-center justify-center w-10 h-10 shadow-md flex-shrink-0">
+            <div className="text-xl bg-white/10 p-1 rounded-full flex items-center justify-center w-14 h-14 shadow-md flex-shrink-0">
               <img 
                 src={baguioLogo} 
                 alt="Baguio City Logo" 
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover"
               />
             </div>
             <div>
-              <h1 className="text-xl font-bold mb-0 text-white/95 shadow-sm">LCCAP Management</h1>
-              <p className="text-xs mb-0 text-white/80 shadow-sm">Local Climate Change Action Plan</p>
+              <h1 className="text-xl font-bold mb-0 text-white/95 shadow-sm">Local Climate Change Action Plan</h1>
+              <p className="text-xs mb-0 text-white/80 shadow-sm">City Environment and Parks Management Office - City Government of Baguio</p>
             </div>
           </div>
         </div>

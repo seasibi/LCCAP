@@ -517,7 +517,7 @@ const Login = ({ onLogin }) => {
           box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
           padding: 20px;
           width: 100%;
-          max-width: 320px;
+          max-width: 380px;
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.2);
         }
@@ -547,32 +547,82 @@ const Login = ({ onLogin }) => {
           border-radius: 50%;
         }
 
-        /* Login Header */
+        /* Professional Login Header */
         .login-header {
           text-align: center;
-          margin-bottom: 15px;
+          margin-bottom: 5px;
+          padding: 20px 0;
         }
 
-        .office-title {
-          font-size: 1.1rem;
-          font-weight: 700;
-          color: #2E7D32;
-          margin-bottom: 4px;
+        .logo-container {
+          margin-bottom: 20px;
+        }
+
+        .logo-wrapper {
+          display: inline-block;
+          padding: 12px;
+          background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+          border-radius: 50%;
+          box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+          border: 2px solid #4caf50;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .logo-wrapper:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(46, 125, 50, 0.25);
+        }
+
+        .logo-image {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+
+        .title-section {
+          margin-top: 15px;
+        }
+
+        .main-title {
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: #1b5e20;
+          margin-bottom: 8px;
           line-height: 1.2;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
-        .system-title {
-          font-size: 0.85rem;
-          font-weight: 500;
-          color: #424242;
+        .subtitle-divider {
+          width: 60px;
+          height: 3px;
+          background: linear-gradient(90deg, #4caf50 0%, #2e7d32 100%);
+          margin: 12px auto;
+          border-radius: 2px;
+        }
+
+        .office-subtitle {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #2e7d32;
+          margin-bottom: 1px;
           line-height: 1.3;
+        }
+
+        .government-text {
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: #616161;
+          margin: 0;
+          font-style: italic;
         }
 
         /* Form Styles */
         .login-form {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
           text-align: left;
         }
 
@@ -585,7 +635,7 @@ const Login = ({ onLogin }) => {
 
         .form-input {
           width: 100%;
-          padding: 8px 12px;
+          padding: 5px 12px;
           border: 2px solid #E0E0E0;
           border-radius: 8px;
           font-size: 0.85rem;
@@ -926,17 +976,19 @@ const Login = ({ onLogin }) => {
 
         {/* Login Card */}
         <div className="login-card">
-          {/* Logo */}
-          <div className="logo-container">
-            <div className="logo">
-              <img src={baguioLogo} alt="Baguio City Logo" className="logo-image" />
-            </div>
-          </div>
 
-          {/* Header */}
+
+          {/* Professional Header */}
           <div className="login-header">
-            <h1 className="office-title">City Environment and Parks Management Office</h1>
-            <h2 className="system-title">Local Climate Change Action Plan</h2>
+            
+            {/* Title Section */}
+            <div className="title-section">
+              <h1 className="main-title pb-3">Welcome!</h1>
+              <h1 className="main-title">Local Climate Change <br/> Action Plan</h1>
+              <div className="subtitle-divider"></div>
+              <h2 className="office-subtitle">City Environment and Parks Management Office</h2>
+              <p className="government-text">City Government of Baguio</p>
+            </div>
           </div>
 
           {/* Login Form */}
