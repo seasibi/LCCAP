@@ -1,4 +1,5 @@
 import React from 'react';
+import { getTextClass } from '../../utils/styleUtils';
 
 const ReportManagement = ({ onLogout, navigateToPage }) => {
   return (
@@ -8,7 +9,7 @@ const ReportManagement = ({ onLogout, navigateToPage }) => {
         <div className="p-6">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Report Management</h1>
+            <h1 className={getTextClass('pageTitle')}>Report Management</h1>
             <p className="text-gray-600">Manage and track your accomplishment reports</p>
           </div>
 

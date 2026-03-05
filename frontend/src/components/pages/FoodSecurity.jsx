@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 import { calendarEventsAPI } from '../../services/api';
+import { getPillarColors, getStatisticsCardClasses, getTextClass, getPillarButtonClasses } from '../../utils/styleUtils';
 
 const FoodSecurity = () => {
   const { showSuccess, showError, showInfo } = useToast();
@@ -173,19 +174,19 @@ const FoodSecurity = () => {
     <div className="p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Food Security</h1>
+        <h1 className={getTextClass('pageTitle')}>Food Security</h1>
         <p className="text-gray-600">Programs and projects ensuring food availability and accessibility for all city residents</p>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-md p-6 border border-green-300">
+        <div className={getStatisticsCardClasses('leadingOffice')}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-green-700 font-medium">Leading Office</p>
-              <p className="text-xl font-bold text-green-900 mt-1">{stats.leadingOffice}</p>
+              <p className="text-sm text-blue-700 font-medium">Leading Office</p>
+              <p className="text-xl font-bold text-blue-900 mt-1">{stats.leadingOffice}</p>
             </div>
-            <div className="bg-green-600 text-white p-3 rounded-lg">
+            <div className="bg-blue-600 text-white p-3 rounded-lg">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -193,7 +194,7 @@ const FoodSecurity = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg shadow-md p-6 border border-emerald-300">
+        <div className={getStatisticsCardClasses('accomplishment')}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-emerald-700 font-medium">Overall Accomplishment</p>
@@ -207,7 +208,7 @@ const FoodSecurity = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-md p-6 border border-blue-300">
+        <div className={getStatisticsCardClasses('departments')}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-blue-700 font-medium">Total Departments</p>
@@ -241,7 +242,7 @@ const FoodSecurity = () => {
         <h2 className="text-xl font-semibold text-gray-800">Projects by Office</h2>
         <button
           onClick={handleAdd}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+          className={getPillarButtonClasses('Food Security')}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getTextClass } from '../../utils/styleUtils';
 
 const UserManagement = ({ onLogout, navigateToPage }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -169,7 +170,7 @@ const UserManagement = ({ onLogout, navigateToPage }) => {
       <div className="bg-white rounded-lg shadow-md p-6 h-full">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-green-700">User Management</h1>
+            <h1 className={getTextClass('pageTitle')}>User Management</h1>
             <p className="text-gray-600">Manage system users and permissions</p>
           </div>
           <button 

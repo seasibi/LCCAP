@@ -123,6 +123,10 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
+  const getFirstDayOfMonth = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
   const openEventForm = (date, event = null) => {
     setSelectedDate(date);
     if (event) {
@@ -342,7 +346,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     // Add empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
       days.push(
-        <div key={`empty-${i}`} className="aspect-square border border-gray-200 bg-gray-50 rounded-lg relative"></div>
+        <div key={`empty-${i}`} className="aspect-square bg-gray-50 border border-gray-200 rounded-xl relative cursor-default"></div>
       );
     }
     
@@ -350,6 +354,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const isToday = date.toDateString() === today.toDateString();
+      const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
       const dayEvents = getEventsForDate(day);
       
       // Check for multi-day events that start on this day
@@ -359,11 +364,15 @@ const Calendar = ({ onLogout, navigateToPage }) => {
       days.push(
         <div 
           key={day} 
-          className={`aspect-square flex flex-col border-2 border-green-300 rounded-lg cursor-pointer transition-all duration-200 text-sm font-medium relative
-            ${isToday ? 'bg-green-100 text-green-800 border-green-600 hover:bg-green-200' : 'bg-green-50 text-gray-700 border-green-400 hover:bg-green-100 hover:border-green-500'}`}
+          className={`
+            relative p-2 cursor-pointer rounded-xl transition-all duration-200 min-h-[85px] border aspect-square flex flex-col text-sm font-medium
+            ${isToday ? 'bg-green-500 text-white border-green-600 shadow-lg' : ''}
+            ${!isToday && isWeekend ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300' : ''}
+            ${!isToday && !isWeekend ? 'bg-white border-gray-300 hover:bg-green-50 hover:border-green-400 hover:shadow-md' : ''}
+          `}
         >
           <div className="flex justify-between items-start p-1">
-            <span className="text-xs">{day}</span>
+            <span className={`text-sm font-medium mb-1 ${isToday ? 'text-white' : isWeekend ? 'text-red-700' : 'text-gray-700'}`}>{day}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -447,7 +456,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     <div className="h-full p-6">
       <div className="h-full grid grid-cols-10 gap-6">
         {/* Left Panel - Filters / Event Form (30%) */}
-        <div className="col-span-3 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col">
+        <div className="col-span-3 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col border-2 border-green-400">
           {!showEventForm ? (
             <>
               <div className="mb-6">
@@ -729,7 +738,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
         </div>
 
         {/* Right Panel - Calendar (70%) */}
-        <div className="col-span-7 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col">
+        <div className="col-span-7 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col border-2 border-green-400">
           <div className="flex justify-between items-center mb-6">
             <button 
               className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors" 

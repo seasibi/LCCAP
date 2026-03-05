@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calendarEventsAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { getTextClass, getStatisticsCardClasses } from '../../utils/styleUtils';
 
 import Header from '../layout/Header';
 
@@ -310,7 +311,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
       {/* Page Header */}
       <div className="mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className={getTextClass('pageTitle')}>Dashboard</h1>
           <p className="text-gray-600 mt-1">Local Climate Change Action Plan Management</p>
         </div>
       </div>
@@ -320,13 +321,13 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
         {/* First Level - Statistics Cards */}
         <div className="grid grid-cols-3 gap-6">
           {/* Total Events Card */}
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-md p-6 border border-green-300">
+          <div className={getStatisticsCardClasses('leadingOffice')}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-700 font-medium">Total Events</p>
-                <p className="text-3xl font-bold text-green-900">{getEventStatistics().totalEvents}</p>
+                <p className="text-sm text-blue-700 font-medium">Total Events</p>
+                <p className="text-3xl font-bold text-blue-900">{getEventStatistics().totalEvents}</p>
               </div>
-              <div className="bg-green-600 text-white p-3 rounded-lg">
+              <div className="bg-blue-600 text-white p-3 rounded-lg">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -335,7 +336,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
           </div>
 
           {/* Completed Events Card */}
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg shadow-md p-6 border border-emerald-300">
+          <div className={getStatisticsCardClasses('accomplishment')}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-emerald-700 font-medium">Completed</p>
@@ -361,7 +362,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
           </div>
 
           {/* Offices/Department Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-md p-6 border border-blue-300">
+          <div className={getStatisticsCardClasses('departments')}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-700 font-medium">Offices</p>
@@ -566,8 +567,8 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
           {/* Right Side - Legend and Event Details */}
           <div className="w-96 space-y-4">
             {/* Calendar Legend */}
-            <div className="p-4 bg-white rounded-lg border border-green-200 shadow-sm">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Calendar Legend</h4>
+            <div className="p-4 bg-green-50 rounded-lg border-2 border-green-400 shadow-sm">
+              <h4 className="text-sm font-semibold text-green-700 mb-3">Calendar Legend</h4>
               <div className="flex flex-wrap gap-4 text-xs mb-3">
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -586,8 +587,8 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
                   <span className="text-gray-600">3+ events</span>
                 </div>
               </div>
-              <div className="border-t border-gray-200 pt-3">
-                <p className="text-xs font-semibold text-gray-700 mb-2">Status Icons:</p>
+              <div className="border-t border-green-300 pt-3">
+                <p className="text-xs font-semibold text-green-700 mb-2">Status Icons:</p>
                 <div className="flex flex-wrap gap-3 text-xs">
                   <div className="flex items-center gap-1">
                     <span className="text-gray-600">{getStatusIcon('Planned')}</span>
@@ -607,8 +608,8 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
                   </div>
                 </div>
               </div>
-              <div className="border-t border-gray-200 pt-3 mt-3">
-                <p className="text-xs font-semibold text-gray-700 mb-1">Office Initials:</p>
+              <div className="border-t border-green-300 pt-3 mt-3">
+                <p className="text-xs font-semibold text-green-700 mb-1">Office Initials:</p>
                 <p className="text-xs text-gray-600">Event cards show office initials (e.g., "CEO" for City Environment Office)</p>
               </div>
             </div>

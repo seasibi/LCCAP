@@ -277,6 +277,105 @@ export const layout = {
   },
 };
 
+// Pillar-specific color schemes for consistent theming
+export const pillarColors = {
+  foodSecurity: {
+    name: 'Food Security',
+    gradient: 'from-green-50 to-green-100',
+    border: 'border-green-300',
+    text: 'text-green-700',
+    bg: 'bg-green-600',
+    icon: 'text-green-600'
+  },
+  waterSufficiency: {
+    name: 'Water Sufficiency',
+    gradient: 'from-blue-50 to-blue-100',
+    border: 'border-blue-300',
+    text: 'text-blue-700',
+    bg: 'bg-blue-600',
+    icon: 'text-blue-600'
+  },
+  ecologicalStability: {
+    name: 'Ecological Stability',
+    gradient: 'from-emerald-50 to-emerald-100',
+    border: 'border-emerald-300',
+    text: 'text-emerald-700',
+    bg: 'bg-emerald-600',
+    icon: 'text-emerald-600'
+  },
+  humanSecurity: {
+    name: 'Human Security',
+    gradient: 'from-purple-50 to-purple-100',
+    border: 'border-purple-300',
+    text: 'text-purple-700',
+    bg: 'bg-purple-600',
+    icon: 'text-purple-600'
+  },
+  climateSmartIndustries: {
+    name: 'Climate-Smart Industries',
+    gradient: 'from-indigo-50 to-indigo-100',
+    border: 'border-indigo-300',
+    text: 'text-indigo-700',
+    bg: 'bg-indigo-600',
+    icon: 'text-indigo-600'
+  },
+  sustainableEnergy: {
+    name: 'Sustainable Energy',
+    gradient: 'from-yellow-50 to-yellow-100',
+    border: 'border-yellow-300',
+    text: 'text-yellow-700',
+    bg: 'bg-yellow-600',
+    icon: 'text-yellow-600'
+  },
+  knowledgeCapacity: {
+    name: 'Knowledge & Capacity',
+    gradient: 'from-teal-50 to-teal-100',
+    border: 'border-teal-300',
+    text: 'text-teal-700',
+    bg: 'bg-teal-600',
+    icon: 'text-teal-600'
+  }
+};
+
+// Statistics card color variants
+export const statisticsCardColors = {
+  leadingOffice: {
+    gradient: 'from-blue-50 to-blue-100',
+    border: 'border-blue-300',
+    text: 'text-blue-700',
+    bg: 'bg-blue-600'
+  },
+  accomplishment: {
+    gradient: 'from-emerald-50 to-emerald-100',
+    border: 'border-emerald-300',
+    text: 'text-emerald-700',
+    bg: 'bg-emerald-600'
+  },
+  departments: {
+    gradient: 'from-indigo-50 to-indigo-100',
+    border: 'border-indigo-300',
+    text: 'text-indigo-700',
+    bg: 'bg-indigo-600'
+  },
+  projects: {
+    gradient: 'from-teal-50 to-teal-100',
+    border: 'border-teal-300',
+    text: 'text-teal-700',
+    bg: 'bg-teal-600'
+  }
+};
+
+// Typography hierarchy for consistent text styling
+export const textHierarchy = {
+  pageTitle: 'text-3xl font-bold text-gray-900',
+  sectionTitle: 'text-xl font-semibold text-gray-800',
+  cardTitle: 'text-lg font-semibold text-gray-800',
+  subtitle: 'text-gray-600',
+  label: 'text-sm font-medium text-gray-700',
+  body: 'text-sm text-gray-900',
+  caption: 'text-xs text-gray-500'
+};
+
 export default {
   colors,
   typography,
@@ -288,4 +387,7 @@ export default {
   animation,
   components,
   layout,
+  pillarColors,
+  statisticsCardColors,
+  textHierarchy,
 };

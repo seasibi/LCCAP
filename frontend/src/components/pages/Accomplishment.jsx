@@ -163,7 +163,7 @@ const Accomplishment = ({ onLogout, navigateToPage }) => {
           <h1 className="text-3xl font-bold text-green-800 mb-6">Accomplishment</h1>
 
           {/* Form Container */}
-          <div className="flex-1 bg-white rounded-lg shadow-lg border border-gray-100 overflow-auto">
+          <div className="flex-1 bg-green-50 rounded-lg shadow-lg border border-green-300 overflow-auto">
             <form onSubmit={handleSubmit} className="h-full flex flex-col">
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
