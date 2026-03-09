@@ -101,6 +101,24 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     '6. Sustainable Energy': ['Solar Street Lighting', 'Renewable Energy Program', 'Energy Efficiency'],
     '7. Knowledge and Capacity Development': ['Climate Change Training', 'Capacity Building Program', 'Public Awareness']
   };
+
+  const officePrograms = {
+    'City Mayor\'s Office (CMO)': ['Climate Change Training', 'Capacity Building Program', 'Public Awareness', 'Green Business Certification'],
+    'City Human Resource Management Office (CHRMO)': ['Capacity Building Program', 'Climate Change Training'],
+    'City General Services Office (CGSO)': ['Energy Efficiency', 'Sustainable Tourism'],
+    'City Building and Architecture Office (CBAO)': ['Green Business Certification', 'Industrial Zone Development'],
+    'City Planning, Development and Sustainability Office (CPDSO)': ['Tree Planting Program', 'Park Development', 'Biodiversity Conservation', 'Watershed Protection'],
+    'City Disaster Risk Reduction and Management Office (CDRRMO)': ['Community Safety', 'Climate Change Training'],
+    'City Veterinary and Agriculture Office (CVAO)': ['Urban Garden Program', 'Feeding Program', 'Nutrition Education'],
+    'City Social Welfare and Development Office (CSWDO)': ['Livelihood Programs', 'Community Safety', 'Feeding Program'],
+    'City Health Services Office (CHSO)': ['Health Services Enhancement', 'Nutrition Education'],
+    'City Environment and Parks Management Office (CEPMO)': ['Tree Planting Program', 'Park Development', 'Biodiversity Conservation', 'Watershed Protection'],
+    'City Engineering Office': ['Water Supply Expansion', 'Water Treatment Plant Upgrade', 'Solar Street Lighting'],
+    'Bureau of Fire Protection (BFP)': ['Community Safety', 'Health Services Enhancement'],
+    'Benguet Electric Cooperative (BENECO)': ['Solar Street Lighting', 'Renewable Energy Program', 'Energy Efficiency'],
+    'Department of Public Works and Highways (DPWH)': ['Water Supply Expansion', 'Water Treatment Plant Upgrade'],
+    'Human Resource Management Office (HRMO)': ['Capacity Building Program', 'Climate Change Training']
+  };
   const offices = [
     'City Mayor\'s Office (CMO)',
     'City Human Resource Management Office (CHRMO)',
@@ -376,7 +394,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleAddEvent(day);
+                openEventForm(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
               }}
               className="p-1 opacity-30 hover:opacity-100 transition-opacity duration-200 rounded hover:bg-green-100"
             >
@@ -453,321 +471,412 @@ const Calendar = ({ onLogout, navigateToPage }) => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="h-full p-6">
-      <div className="h-full grid grid-cols-10 gap-6">
-        {/* Left Panel - Filters / Event Form (30%) */}
-        <div className="col-span-3 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col border-2 border-green-400">
-          {!showEventForm ? (
-            <>
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-green-700 mb-2">Filters</h2>
-                <p className="text-gray-600 text-sm">Filter calendar events by category</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      {/* Professional Header with Environment Theme */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-green-200 shadow-sm">
+        <div className="px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">Climate Calendar</h1>
+                  <p className="text-gray-600 mt-1">Local Climate Change Action Plan Event Management</p>
+                </div>
               </div>
-              
-              <div className="space-y-4 flex-1">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Filter by Pillar
-                  </label>
-                  <select 
-                    value={filters.pillar}
-                    onChange={(e) => setFilters({...filters, pillar: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">All Pillars</option>
-                    {pillars.map(pillar => (
-                      <option key={pillar} value={pillar}>{pillar}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Filter by Office
-                  </label>
-                  <select 
-                    value={filters.office}
-                    onChange={(e) => setFilters({...filters, office: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">All Offices</option>
-                    {offices.map(office => (
-                      <option key={office} value={office}>{office}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Filter by Status
-                  </label>
-                  <select 
-                    value={filters.status}
-                    onChange={(e) => setFilters({...filters, status: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">All Status</option>
-                    <option value="Planned">Planned</option>
-                    <option value="Ongoing">Ongoing</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Moved">Moved</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Search Events
-                  </label>
-                  <input
-                    type="text"
-                    value={filters.searchTerm}
-                    onChange={(e) => setFilters({...filters, searchTerm: e.target.value})}
-                    placeholder="Search by event name or office..."
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                
-                <div className="pt-4">
-                  <button 
-                    onClick={() => setFilters({ pillar: '', office: '', status: '', searchTerm: '' })}
-                    className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-colors duration-200 font-medium"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-                
-                {/* Events List */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Events List {filteredEvents.length !== events.length && `(${filteredEvents.length}/${events.length})`}
-                  </h3>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {filteredEvents.length === 0 ? (
-                      <p className="text-gray-500 text-sm text-center py-4">
-                        {events.length === 0 ? 'No events scheduled' : 'No events match current filters'}
-                      </p>
-                    ) : (
-                      filteredEvents
-                        .sort((a, b) => new Date(a.date) - new Date(b.date))
-                        .map(event => (
-                          <div key={event.id} className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
-                            <div className="flex justify-between items-start mb-2">
-                              <div className="flex-1">
-                                <h4 className="text-sm font-medium text-gray-900 truncate">{event.event_name}</h4>
-                                <p className="text-xs text-gray-500">{new Date(event.date).toLocaleDateString()}</p>
-                                <p className="text-xs text-gray-600">{event.pillar} • {event.office}</p>
-                              </div>
-                              <div className="flex gap-1 ml-2">
-                                <button
-                                  onClick={() => handleEditEvent(event)}
-                                  className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                                  title="Edit event"
-                                >
-                                  <EditIcon />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteEvent(event.id)}
-                                  className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
-                                  title="Delete event"
-                                >
-                                  <DeleteIcon />
-                                </button>
-                              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Total Events</p>
+                <p className="text-lg font-semibold text-gray-800">{filteredEvents.length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Left Panel - Filters / Event Form */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden">
+              {!showEventForm ? (
+                <>
+                  <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">Event Filters</h2>
+                        <p className="text-white/80 text-sm">Filter calendar events</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 space-y-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Filter by Pillar
+                      </label>
+                      <select 
+                        value={filters.pillar}
+                        onChange={(e) => setFilters({...filters, pillar: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                        <option value="">All Pillars</option>
+                        {pillars.map(pillar => (
+                          <option key={pillar} value={pillar}>{pillar}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Filter by Office
+                      </label>
+                      <select 
+                        value={filters.office}
+                        onChange={(e) => setFilters({...filters, office: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                        <option value="">All Offices</option>
+                        {offices.map(office => (
+                          <option key={office} value={office}>{office}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Filter by Status
+                      </label>
+                      <select 
+                        value={filters.status}
+                        onChange={(e) => setFilters({...filters, status: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                        <option value="">All Status</option>
+                        <option value="Planned">Planned</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Moved">Moved</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Search Events
+                      </label>
+                      <input
+                        type="text"
+                        value={filters.searchTerm}
+                        onChange={(e) => setFilters({...filters, searchTerm: e.target.value})}
+                        placeholder="Search by event name or office..."
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      />
+                    </div>
+                    
+                    <div>
+                      <button 
+                        onClick={() => setFilters({ pillar: '', office: '', status: '', searchTerm: '' })}
+                        className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all duration-200"
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Events List */}
+                  <div className="px-6 pb-6">
+                    <div className="border-t border-gray-200 pt-6">
+                      <h3 className="text-lg font-bold text-gray-800 mb-4">
+                        Events List {filteredEvents.length !== events.length && `(${filteredEvents.length}/${events.length})`}
+                      </h3>
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {filteredEvents.length === 0 ? (
+                          <div className="text-center py-8">
+                            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2 py-1 text-xs font-medium rounded ${
-                                event.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                                event.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                                {event.status}
-                              </span>
-                              {event.duration && (
-                                <span className="text-xs text-gray-500">{event.duration}</span>
-                              )}
-                            </div>
+                            <p className="text-gray-500 text-sm">
+                              {events.length === 0 ? 'No events scheduled' : 'No events match current filters'}
+                            </p>
                           </div>
-                        ))
-                    )}
+                        ) : (
+                          filteredEvents
+                            .sort((a, b) => new Date(a.date) - new Date(b.date))
+                            .map(event => (
+                              <div key={event.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-all duration-200">
+                                <div className="flex justify-between items-start mb-3">
+                                  <div className="flex-1">
+                                    <h4 className="text-sm font-semibold text-gray-900 truncate mb-1">{event.event_name}</h4>
+                                    <p className="text-xs text-gray-500 mb-1">{new Date(event.date).toLocaleDateString()}</p>
+                                    <p className="text-xs text-gray-600">{event.pillar} • {event.office}</p>
+                                  </div>
+                                  <div className="flex gap-2 ml-2">
+                                    <button
+                                      onClick={() => handleEditEvent(event)}
+                                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-all duration-200"
+                                      title="Edit event"
+                                    >
+                                      <EditIcon />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteEvent(event.id)}
+                                      className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-all duration-200"
+                                      title="Delete event"
+                                    >
+                                      <DeleteIcon />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                                    event.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                                    event.status === 'Ongoing' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-gray-100 text-gray-800'
+                                  }`}>
+                                    {event.status}
+                                  </span>
+                                  {event.duration && (
+                                    <span className="text-xs text-gray-500">{event.duration}</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white">
+                          {editingEvent ? 'Edit Event' : 'Create Event'}
+                        </h2>
+                        <p className="text-white/80 text-sm">
+                          {selectedDate && `${editingEvent ? 'Edit' : 'Event for'} ${selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 space-y-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Event Name
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.event_name}
+                        onChange={(e) => setFormData({...formData, event_name: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        placeholder="Enter event name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Pillar
+                      </label>
+                      <select
+                        value={formData.pillar}
+                        onChange={(e) => setFormData({...formData, pillar: e.target.value, program: ''})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                        <option value="">Select Pillar</option>
+                        {pillars.map(pillar => (
+                          <option key={pillar} value={pillar}>{pillar}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Office
+                      </label>
+                      <select
+                        value={formData.office}
+                        onChange={(e) => setFormData({...formData, office: e.target.value, program: ''})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                        <option value="">Select Office</option>
+                        {offices.map(office => (
+                          <option key={office} value={office}>{office}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Program
+                      </label>
+                      <select
+                        value={formData.program}
+                        onChange={(e) => setFormData({...formData, program: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        disabled={!formData.pillar || !formData.office}
+                      >
+                        <option value="">Select Program</option>
+                        {formData.pillar && formData.office && (() => {
+                          const pillarPrograms = programs[formData.pillar] || [];
+                          const officeProgramList = officePrograms[formData.office] || [];
+                          const filteredPrograms = pillarPrograms.filter(program => 
+                            officeProgramList.includes(program)
+                          );
+                          return filteredPrograms.map(program => (
+                            <option key={program} value={program}>{program}</option>
+                          ));
+                        })()}
+                      </select>
+                      {formData.pillar && formData.office && (() => {
+                        const pillarPrograms = programs[formData.pillar] || [];
+                        const officeProgramList = officePrograms[formData.office] || [];
+                        const filteredPrograms = pillarPrograms.filter(program => 
+                          officeProgramList.includes(program)
+                        );
+                        if (filteredPrograms.length === 0) {
+                          return (
+                            <p className="text-xs text-amber-600 mt-2">
+                              No programs available for this office under the selected pillar
+                            </p>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({...formData, date: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Duration
+                      </label>
+                      <select
+                        value={formData.duration}
+                        onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                        <option value="">Single Day</option>
+                        <option value="2 days">2 Days</option>
+                        <option value="3 days">3 Days</option>
+                        <option value="4 days">4 Days</option>
+                        <option value="5 days">5 Days</option>
+                        <option value="1 week">1 Week</option>
+                        <option value="2 weeks">2 Weeks</option>
+                        <option value="1 month">1 Month</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Multi-day events will appear across consecutive days
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Accomplishment Status
+                      </label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({...formData, status: e.target.value})}
+                        className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                      >
+                       <option hidden selected value="Select Status">Select Status</option>
+                        <option value="Planned">Planned</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 p-6">
+                    <button
+                      onClick={handleSaveEvent}
+                      className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                      Save Event
+                    </button>
+                    <button
+                      onClick={handleCancelEvent}
+                      className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Right Panel - Calendar */}
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <button 
+                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-white backdrop-blur-sm"
+                      onClick={() => navigateMonth('prev')}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <div className="text-center">
+                      <h3 className="text-2xl font-bold text-white">{monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}</h3>
+                    </div>
+                    <button 
+                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-white backdrop-blur-sm"
+                      onClick={() => navigateMonth('next')}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
-            </>
-          ) : (
-            <>
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-green-700 mb-2">
-                  {editingEvent ? 'Edit Event' : 'Create Event'}
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  {selectedDate && `${editingEvent ? 'Edit' : 'Event for'} ${selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`}
-                </p>
-              </div>
               
-              <div className="space-y-4 flex-1 overflow-y-auto">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Event Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.event_name}
-                    onChange={(e) => setFormData({...formData, event_name: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    placeholder="Enter event name"
-                  />
+              <div className="p-6">
+                <div className="grid grid-cols-7 gap-2 mb-4">
+                  {dayNames.map(day => (
+                    <div key={day} className="text-center text-sm font-semibold text-gray-700 py-2 border-b border-green-200">
+                      {day}
+                    </div>
+                  ))}
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pillar
-                  </label>
-                  <select
-                    value={formData.pillar}
-                    onChange={(e) => setFormData({...formData, pillar: e.target.value, program: ''})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">Select Pillar</option>
-                    {pillars.map(pillar => (
-                      <option key={pillar} value={pillar}>{pillar}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Program
-                  </label>
-                  <select
-                    value={formData.program}
-                    onChange={(e) => setFormData({...formData, program: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                    disabled={!formData.pillar}
-                  >
-                    <option value="">Select Program</option>
-                    {formData.pillar && programs[formData.pillar]?.map(program => (
-                      <option key={program} value={program}>{program}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Office
-                  </label>
-                  <select
-                    value={formData.office}
-                    onChange={(e) => setFormData({...formData, office: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">Select Office</option>
-                    {offices.map(office => (
-                      <option key={office} value={office}>{office}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({...formData, date: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Duration
-                  </label>
-                  <select
-                    value={formData.duration}
-                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">Single Day</option>
-                    <option value="2 days">2 Days</option>
-                    <option value="3 days">3 Days</option>
-                    <option value="4 days">4 Days</option>
-                    <option value="5 days">5 Days</option>
-                    <option value="1 week">1 Week</option>
-                    <option value="2 weeks">2 Weeks</option>
-                    <option value="1 month">1 Month</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Multi-day events will appear across consecutive days
-                  </p>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Accomplishment Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                   <option hidden selected value="Select Status">Select Status</option>
-                    <option value="Planned">Planned</option>
-                    <option value="Ongoing">Ongoing</option>
-                    <option value="Completed">Completed</option>
-                  </select>
+                <div className="grid grid-cols-7 gap-2">
+                  {generateCalendarDays()}
                 </div>
               </div>
-              
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={handleSaveEvent}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors duration-200 font-medium"
-                >
-                  Save Event
-                </button>
-                <button
-                  onClick={handleCancelEvent}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 px-4 rounded-lg transition-colors duration-200 font-medium"
-                >
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Right Panel - Calendar (70%) */}
-        <div className="col-span-7 bg-green-50 rounded-lg shadow-md p-6 overflow-hidden flex flex-col border-2 border-green-400">
-          <div className="flex justify-between items-center mb-6">
-            <button 
-              className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors" 
-              onClick={() => navigateMonth('prev')}
-            >
-              ‹
-            </button>
-            <h2 className="text-xl font-semibold text-gray-800">
-              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-            </h2>
-            <button 
-              className="w-8 h-8 bg-green-600 hover:bg-green-700 text-white rounded-full flex items-center justify-center transition-colors" 
-              onClick={() => navigateMonth('next')}
-            >
-              ›
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-auto">
-            <div className="grid grid-cols-7 gap-1 mb-1">
-              {dayNames.map(day => (
-                <div key={day} className="text-center font-semibold text-xs text-gray-600 p-2 bg-green-50 rounded">
-                  {day}
-                </div>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-7 gap-1">
-              {generateCalendarDays()}
             </div>
           </div>
         </div>

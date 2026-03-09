@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { OFFICES } from '../../utils/constants';
 import { useToast } from '../../context/ToastContext';
 import { calendarEventsAPI } from '../../services/api';
 
@@ -100,12 +101,120 @@ const EcologicalStability = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  
+  // Form data state
+  const [formData, setFormData] = useState({
+    office: '',
+    projectName: '',
+    accomplishment: '',
+    status: 'In Progress',
+    target: '',
+    actual: ''
+  });
+  
+  // Filtering state
+  const [filters, setFilters] = useState({
+    office: '',
+    status: '',
+    searchTerm: ''
+  });
+  const [filteredProjects, setFilteredProjects] = useState([]);
 
-  const handleAdd = () => setIsAddModalOpen(true);
+  // Apply filters whenever projects or filters change
+  useEffect(() => {
+    let filtered = [...projects];
+    
+    // Filter by office
+    if (filters.office) {
+      filtered = filtered.filter(project => project.office === filters.office);
+    }
+    
+    // Filter by status
+    if (filters.status) {
+      filtered = filtered.filter(project => project.status === filters.status);
+    }
+    
+    // Filter by search term
+    if (filters.searchTerm) {
+      filtered = filtered.filter(project => 
+        project.projectName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        project.office.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredProjects(filtered);
+  }, [projects, filters]);
+
+  const handleAdd = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveProject = (e) => {
+    e.preventDefault(); // Prevent form submission and page reload
+    
+    // Use formData state directly instead of accessing form elements
+    const projectData = {
+      office: formData.office,
+      projectName: formData.projectName,
+      accomplishment: parseInt(formData.accomplishment) || 0,
+      status: formData.status,
+      target: formData.target,
+      actual: formData.actual
+    };
+
+    try {
+      if (isEditModalOpen && selectedProject) {
+        // Update existing project
+        const updatedProjects = projects.map(p => 
+          p.id === selectedProject.id 
+            ? { ...p, ...projectData }
+            : p
+        );
+        setProjects(updatedProjects);
+        showSuccess('Project updated successfully!');
+      } else {
+        // Add new project
+        const newProject = {
+          id: Math.random(),
+          ...projectData,
+          pillar: '3. Ecological and Environmental stability'
+        };
+        setProjects([...projects, newProject]);
+        showSuccess('Project added successfully!');
+      }
+      
+      // Reset form and close modal
+      setFormData({
+        office: '',
+        projectName: '',
+        accomplishment: '',
+        status: 'In Progress',
+        target: '',
+        actual: ''
+      });
+      setIsAddModalOpen(false);
+      setIsEditModalOpen(false);
+      setSelectedProject(null);
+    } catch (error) {
+      console.error('Error saving project:', error);
+      showError('Error saving project. Please try again.');
+    }
+  };
+
   const handleEdit = (project) => {
     setSelectedProject(project);
     setIsEditModalOpen(true);
+    // Populate form with project data
+    setFormData({
+      office: project.office,
+      projectName: project.projectName,
+      accomplishment: project.accomplishment,
+      status: project.status,
+      target: project.target,
+      actual: project.actual
+    });
   };
+
   const handleView = (project) => {
     setSelectedProject(project);
     setIsViewModalOpen(true);
@@ -130,12 +239,6 @@ const EcologicalStability = () => {
   };
 
   const MetricCard = ({ label, value, icon, color = 'blue' }) => {
-    const colorClasses = {
-      blue: 'bg-blue-600',
-      green: 'bg-green-600',
-      gray: 'bg-gray-600'
-    };
-
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
@@ -143,7 +246,7 @@ const EcologicalStability = () => {
             <p className="text-sm text-gray-600 font-medium">{label}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
           </div>
-          <div className={`${colorClasses[color]} text-white p-3 rounded-xl`}>
+          <div className="bg-green-600 text-white p-3 rounded-xl">
             {icon}
           </div>
         </div>
@@ -170,81 +273,62 @@ const EcologicalStability = () => {
     </div>
   );
 
-  const FilterBar = ({ filters, setFilters, projects }) => {
-    const [localFilters, setLocalFilters] = useState({
-      office: '',
-      status: '',
-      searchTerm: ''
-    });
-    
-    const filteredProjects = projects.filter(project => {
-      const matchesOffice = !localFilters.office || project.office === localFilters.office;
-      const matchesStatus = !localFilters.status || project.status === localFilters.status;
-      const matchesSearch = !localFilters.searchTerm || 
-        project.projectName.toLowerCase().includes(localFilters.searchTerm.toLowerCase()) ||
-        project.office.toLowerCase().includes(localFilters.searchTerm.toLowerCase());
-      
-      return matchesOffice && matchesStatus && matchesSearch;
-    });
-
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Office</label>
-            <select
-              value={localFilters.office}
-              onChange={(e) => setLocalFilters({...localFilters, office: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Offices</option>
-              {[...new Set(projects.map(p => p.office))].map(office => (
-                <option key={office} value={office}>{office}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
-            <select
-              value={localFilters.status}
-              onChange={(e) => setLocalFilters({...localFilters, status: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Status</option>
-              <option value="Completed">Completed</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Delayed">Delayed</option>
-              <option value="Planning">Planning</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Search Projects</label>
-            <input
-              type="text"
-              value={localFilters.searchTerm}
-              onChange={(e) => setLocalFilters({...localFilters, searchTerm: e.target.value})}
-              placeholder="Search by project name or office..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={() => setLocalFilters({ office: '', status: '', searchTerm: '' })}
-              className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-            >
-              Clear Filters
-            </button>
-          </div>
+  const FilterBar = ({ filters, setFilters, projects }) => (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Office</label>
+          <select
+            value={filters.office}
+            onChange={(e) => setFilters({...filters, office: e.target.value})}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Offices</option>
+            {[...new Set(projects.map(p => p.office))].map(office => (
+              <option key={office} value={office}>{office}</option>
+            ))}
+          </select>
         </div>
-        {filteredProjects.length !== projects.length && (
-          <p className="text-sm text-gray-600 mt-4">
-            Showing {filteredProjects.length} of {projects.length} projects
-          </p>
-        )}
-        <ProjectsTable projects={filteredProjects} onView={handleView} onEdit={handleEdit} />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({...filters, status: e.target.value})}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Status</option>
+            <option value="Completed">Completed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Delayed">Delayed</option>
+            <option value="Planning">Planning</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Search Projects</label>
+          <input
+            type="text"
+            value={filters.searchTerm}
+            onChange={(e) => setFilters({...filters, searchTerm: e.target.value})}
+            placeholder="Search by project name or office..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <div className="flex items-end">
+          <button
+            onClick={() => setFilters({ office: '', status: '', searchTerm: '' })}
+            className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+          >
+            Clear Filters
+          </button>
+        </div>
       </div>
-    );
-  };
+      {filteredProjects.length !== projects.length && (
+        <p className="text-sm text-gray-600 mt-4">
+          Showing {filteredProjects.length} of {projects.length} projects
+        </p>
+      )}
+    </div>
+  );
 
   const ProjectsTable = ({ projects, onView, onEdit }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -255,8 +339,6 @@ const EcologicalStability = () => {
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Office</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Project Name</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Accomplishment</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Target</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actual</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
@@ -290,12 +372,6 @@ const EcologicalStability = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {project.target}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {project.actual}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(project.status)}`}>
                       {project.status}
@@ -319,7 +395,7 @@ const EcologicalStability = () => {
                         title="Edit"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </button>
                       <button
@@ -353,40 +429,36 @@ const EcologicalStability = () => {
         <MetricCard
           label="Leading Office"
           value={stats.leadingOffice}
-          color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           }
         />
         <MetricCard
           label="Overall Accomplishment"
           value={`${stats.overallAccomplishment}%`}
-          color="green"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           }
         />
         <MetricCard
           label="Total Departments"
           value={stats.totalDepartments}
-          color="blue"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           }
         />
         <MetricCard
           label="Total Projects"
           value={stats.totalProjects}
-          color="gray"
           icon={
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           }
         />
@@ -408,9 +480,16 @@ const EcologicalStability = () => {
 
       {/* Filter Bar */}
       <FilterBar 
-        filters={{}} 
-        setFilters={() => {}} 
+        filters={filters} 
+        setFilters={setFilters} 
         projects={projects}
+      />
+
+      {/* Projects Table */}
+      <ProjectsTable 
+        projects={filteredProjects}
+        onView={handleView}
+        onEdit={handleEdit}
       />
 
       {/* View Modal */}
@@ -469,49 +548,78 @@ const EcologicalStability = () => {
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
               {isEditModalOpen ? 'Edit Project' : 'Add New Project'}
             </h3>
-            <form className="space-y-6">
+            <form onSubmit={handleSaveProject} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Office</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option>City Environment Office</option>
-                    <option>City Parks Office</option>
+                  <select 
+                    name="office"
+                    value={formData.office}
+                    onChange={(e) => setFormData({...formData, office: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select Office</option>
+                    {OFFICES.map(office => (
+                      <option key={office} value={office}>{office}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input 
+                    type="text"
+                    name="projectName"
+                    value={formData.projectName}
+                    onChange={(e) => setFormData({...formData, projectName: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Accomplishment (%)</label>
-                  <input type="number" min="0" max="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input 
+                    type="number"
+                    name="accomplishment"
+                    min="0" 
+                    max="100" 
+                    value={formData.accomplishment}
+                    onChange={(e) => setFormData({...formData, accomplishment: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Target</label>
+                  <input 
+                    type="text"
+                    name="target"
+                    value={formData.target}
+                    onChange={(e) => setFormData({...formData, target: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Actual</label>
+                  <input 
+                    type="text"
+                    name="actual"
+                    value={formData.actual}
+                    onChange={(e) => setFormData({...formData, actual: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select 
+                    name="status"
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
                     <option>In Progress</option>
                     <option>Completed</option>
                     <option>Delayed</option>
                     <option>Planning</option>
                   </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Target</label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Actual</label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Quarter</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option>Q1 2026</option>
-                    <option>Q2 2026</option>
-                    <option>Q3 2026</option>
-                    <option>Q4 2026</option>
-                  </select>
-                </div>
+                </div>                
               </div>
               <div className="flex justify-end gap-3 mt-8">
                 <button
@@ -525,7 +633,8 @@ const EcologicalStability = () => {
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleSaveProject}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   {isEditModalOpen ? 'Update' : 'Save'}

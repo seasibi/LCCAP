@@ -7,9 +7,9 @@ const DashboardIcon = () => (
   </svg>
 );
 
-const TrophyIcon = () => (
+const AccomplishmentIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
 
@@ -19,15 +19,21 @@ const CalendarIcon = () => (
   </svg>
 );
 
-const DocumentIcon = () => (
+const ReportIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v7m3-2h6l-1-1H9l-1 1z" />
   </svg>
 );
 
-const UsersIcon = () => (
+const UserManagementIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
+);
+
+const DataManagementIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
   </svg>
 );
 
@@ -38,9 +44,25 @@ const UserIcon = () => (
 );
 
 const LeafIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-  </svg>
+  <svg
+  className="w-5 h-5"
+  fill="none"
+  stroke="currentColor"
+  viewBox="0 0 24 24"
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    d="M5 21c10 0 14-6 14-14C11 7 7 11 7 17c0 2 1 4 2 4"
+  />
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    d="M5 21c4-4 8-8 14-14"
+  />
+</svg>
 );
 
 const WaterIcon = () => (
@@ -51,7 +73,7 @@ const WaterIcon = () => (
 
 const TreeIcon = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
 
@@ -94,11 +116,11 @@ const FolderIcon = () => (
 const getIcon = (iconName) => {
   switch (iconName) {
     case '📊': return <DashboardIcon />;
-    case '🏆': return <TrophyIcon />;
+    case '🏆': return <AccomplishmentIcon />;
     case '📅': return <CalendarIcon />;
-    case '📋': return <DocumentIcon />;
-    case '👥': return <UsersIcon />;
-    case '🗃️': return <FolderIcon />;
+    case '📋': return <ReportIcon />;
+    case '👥': return <UserManagementIcon />;
+    case '🗃️': return <DataManagementIcon />;
     default: return <DashboardIcon />;
   }
 };
@@ -117,107 +139,141 @@ const Sidebar = ({ isOpen, currentPage, navigateToPage, onLogout }) => {
   };
 
   return (
-    <div className={`w-64 bg-green-700 text-white flex flex-col transition-all duration-300 ${
+    <div className={`w-64 bg-white border-r border-green-200 flex flex-col transition-all duration-300 shadow-lg ${
       isOpen ? 'translate-x-0' : '-translate-x-full'
-    } fixed top-16 left-0 h-full z-40 py-2`}>
+    } fixed top-16 left-0 h-full z-40`}>
+
       {/* Navigation Menu */}
-      <nav className="flex-1 px-3 overflow-y-auto">
-        <ul className="space-y-1">
-          {navigationItems.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => handleNavigation(item.id)}
-                className={`flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left ${
-                  currentPage === item.id 
-                    ? 'bg-white text-green-700' 
-                    : 'bg-green-800 text-green-100 hover:bg-green-700'
-                }`}
-              >
-                <span className={`w-5 h-5 transition-colors duration-200 ${
-                  currentPage === item.id ? 'text-green-700' : 'text-green-100'
-                }`}>
-                  {getIcon(item.icon)}
-                </span>
-                <span className={`text-xs transition-colors duration-200 ${
-                  currentPage === item.id ? 'text-green-700' : 'text-green-100'
-                }`}>
-                  {item.label}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Main Navigation</h3>
+          <ul className="space-y-1">
+            {navigationItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleNavigation(item.id)}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left group ${
+                    currentPage === item.id 
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md' 
+                      : 'text-gray-700 hover:bg-green-50 hover:text-green-700'
+                  }`}
+                >
+                  <span className={`w-5 h-5 transition-colors duration-200 flex-shrink-0 ${
+                    currentPage === item.id ? 'text-white' : 'text-gray-500 group-hover:text-green-600'
+                  }`}>
+                    {getIcon(item.icon)}
+                  </span>
+                  <span className={`text-sm font-medium transition-colors duration-200 ${
+                    currentPage === item.id ? 'text-white' : 'text-gray-700 group-hover:text-green-700'
+                  }`}>
+                    {item.label}
+                  </span>
+                  {currentPage === item.id && (
+                    <div className="w-2 h-2 bg-white rounded-full ml-auto"></div>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         {/* Pillars Section */}
-        <div className="mt-6">
-          <h3 className="text-xs font-semibold text-green-200 uppercase tracking-wider mb-2">LCCAP Pillars</h3>
+        <div>
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Environmental Pillars</h3>
           <ul className="space-y-1">
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/food-security')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <LeafIcon />
-                <span className="text-xs">Food Security</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <LeafIcon />
+                </span>
+                <span className="text-sm font-medium">Food Security</span>
               </button>
             </li>
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/water-sufficiency')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <WaterIcon />
-                <span className="text-xs">Water Sufficiency</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <WaterIcon />
+                </span>
+                <span className="text-sm font-medium">Water Sufficiency</span>
               </button>
             </li>
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/ecological-stability')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <TreeIcon />
-                <span className="text-xs">Ecological Stability</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <TreeIcon />
+                </span>
+                <span className="text-sm font-medium">Ecological Stability</span>
               </button>
             </li>
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/human-security')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <ShieldIcon />
-                <span className="text-xs">Human Security</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <ShieldIcon />
+                </span>
+                <span className="text-sm font-medium">Human Security</span>
               </button>
             </li>
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/climate-smart-industries')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <FactoryIcon />
-                <span className="text-xs">Climate-Smart Industries</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <FactoryIcon />
+                </span>
+                <span className="text-sm font-medium">Climate-Smart Industries</span>
               </button>
             </li>
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/sustainable-energy')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <LightningIcon />
-                <span className="text-xs">Sustainable Energy</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <LightningIcon />
+                </span>
+                <span className="text-sm font-medium">Sustainable Energy</span>
               </button>
             </li>
             <li>
               <button 
                 onClick={() => handlePillarNavigation('/knowledge-capacity')}
-                className="flex items-center gap-2 px-2 py-1.5 rounded transition-all duration-200 w-full text-left bg-green-800 text-green-100 hover:bg-green-700"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-green-50 hover:text-green-700 group"
               >
-                <BookIcon />
-                <span className="text-xs">Knowledge & Capacity</span>
+                <span className="w-5 h-5 text-gray-500 group-hover:text-green-600 flex-shrink-0">
+                  <BookIcon />
+                </span>
+                <span className="text-sm font-medium">Knowledge & Capacity</span>
               </button>
             </li>
           </ul>
         </div>
       </nav>
+
+      {/* Sidebar Footer */}
+      <div className="px-4 py-4 border-t border-green-100">
+        <button
+          onClick={onLogout}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left text-gray-700 hover:bg-red-50 hover:text-red-700 group"
+        >
+          <span className="w-5 h-5 text-gray-500 group-hover:text-red-600 flex-shrink-0">
+            <LogoutIcon />
+          </span>
+          <span className="text-sm font-medium">Logout</span>
+        </button>
+      </div>
     </div>
   );
 };

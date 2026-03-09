@@ -311,437 +311,352 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
   };
 
   return (
-    <div className="p-6">
-      {/* Page Header */}
-      <div className="mb-6">
-        <div>
-          <h1 className={getTextClass('pageTitle')}>Dashboard</h1>
-          <p className="text-gray-600 mt-1">Local Climate Change Action Plan Management</p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      {/* Professional Header with Environment Theme */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-green-200 shadow-sm">
+        <div className="px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">LCCAP Dashboard</h1>
+                  <p className="text-gray-600 mt-1">Local Climate Change Action Plan Management System</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Current Date</p>
+                <p className="text-lg font-semibold text-gray-800">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Dashboard Content */}
-      <div className="space-y-6">
-        {/* First Level - Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StatCard
-            icon={FiCalendar}
-            title="Total Events"
-            value={getEventStatistics().totalEvents}
-            subtitle="All recorded activities"
-            color="#2E7D32"
-          />
-          <StatCard
-            icon={FiCheckCircle}
-            title="Completed Events"
-            value={getEventStatistics().completedEvents}
-            subtitle="Successfully finished"
-            color="#66BB6A"
-          />
-        </div>
+      {/* Main Dashboard Content */}
+      <div className="px-6 py-8">
+        <div className="space-y-8">
+          {/* Professional Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-green-100 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <FiCalendar className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 font-medium">Total Events</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-1">{getEventStatistics().totalEvents}</p>
+                </div>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <svg className="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <span>All recorded activities</span>
+              </div>
+            </div>
 
-        {/* LCCAP Pillar Accomplishments */}
-        <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-green-400">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-800">LCCAP Pillar Accomplishments</h3>
-            <FiTrendingUp className="text-green-600 text-2xl" />
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-green-400">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Pillar</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Total Events</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Completed</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">In Progress</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Progress</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lccapPillars.map((pillar, index) => {
-                  const pillarEvents = allEvents.filter(event => event.pillar === pillar.name);
-                  const completedEvents = pillarEvents.filter(event => event.status === 'Completed').length;
-                  const inProgressEvents = pillarEvents.filter(event => event.status === 'Ongoing').length;
-                  const progress = pillarEvents.length > 0 ? Math.round((completedEvents / pillarEvents.length) * 100) : 0;
-                  
-                  return (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-green-50 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="flex items-center">
-                          <div 
-                            className="w-3 h-3 rounded-full mr-3"
-                            style={{ backgroundColor: pillar.color }}
-                          ></div>
-                          <span className="font-medium text-gray-800">{pillar.name}</span>
-                        </div>
-                      </td>
-                      <td className="text-center py-3 px-4 text-gray-700">{pillarEvents.length}</td>
-                      <td className="text-center py-3 px-4 text-gray-700">{completedEvents}</td>
-                      <td className="text-center py-3 px-4 text-gray-700">{inProgressEvents}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-center">
-                          <div className="w-full max-w-24 bg-gray-200 rounded-full h-2 mr-2">
-                            <div 
-                              className="h-2 rounded-full transition-all duration-500"
-                              style={{ 
-                                width: `${progress}%`,
-                                backgroundColor: progress >= 70 ? '#2E7D32' : progress >= 50 ? '#66BB6A' : '#FFA726'
-                              }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-medium text-gray-700">{progress}%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+            <div className="bg-white rounded-2xl shadow-xl border border-green-100 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <FiCheckCircle className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 font-medium">Completed</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-1">{getEventStatistics().completedEvents}</p>
+                </div>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <svg className="w-4 h-4 mr-1 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Successfully finished</span>
+              </div>
+            </div>
 
-        {/* Second Level - Calendar and Side Panel */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Side - Calendar */}
-          <div className="flex-1">
-            {/* Full Width Calendar */}
-            <div className="bg-green-50 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-green-400">
-              {/* Enhanced Calendar Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-2">
+            <div className="bg-white rounded-2xl shadow-xl border border-green-100 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 font-medium">In Progress</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-1">{getEventStatistics().inProgressEvents || 0}</p>
+                </div>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <svg className="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Currently active</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-xl border border-green-100 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <FiTrendingUp className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 font-medium">Completion Rate</p>
+                  <p className="text-3xl font-bold text-gray-800 mt-1">
+                    {getEventStatistics().totalEvents > 0 
+                      ? Math.round((getEventStatistics().completedEvents / getEventStatistics().totalEvents) * 100) 
+                      : 0}%
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <svg className="w-4 h-4 mr-1 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Overall progress</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Calendar Section */}
+          <div className="bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                    className="p-2 hover:bg-green-100 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm"
+                    className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-white backdrop-blur-sm"
                     title="Previous month"
                   >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
                   <button
                     onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                    className="p-2 hover:bg-green-100 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm"
+                    className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 text-white backdrop-blur-sm"
                     title="Next month"
                   >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </div>
-                
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold text-gray-800">{formatMonthYear(currentDate)}</h2>
-                  <p className="text-sm text-gray-500">Week {getWeekNumber(currentDate)}</p>
+                  <h3 className="text-2xl font-bold text-white">{formatMonthYear(currentDate)}</h3>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={goToToday}
-                    className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-                  >
-                    Today
-                  </button>
-                  <button
-                    onClick={resetNotifications}
-                    className="p-2 hover:bg-green-100 rounded-lg transition-all duration-200 hover:scale-105 shadow-sm"
-                    title="Reset notifications"
-                  >
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  onClick={() => setCurrentDate(new Date())}
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-200 backdrop-blur-sm font-medium"
+                >
+                  Today
+                </button>
               </div>
-
-              {/* Enhanced Calendar Grid */}
-              <div className="flex-1 overflow-auto">
-                <div className="grid grid-cols-7 gap-1 text-center">
-                  {/* Enhanced Day headers */}
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                    <div key={day} className={`text-sm font-semibold py-2 rounded-lg border ${
-                      index === 0 || index === 6 
-                        ? 'bg-red-50 text-red-700 border-red-200' 
-                        : 'bg-green-100 text-green-800 border-green-300'
-                    }`}>
-                      {day}
-                    </div>
-                  ))}
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-7 gap-2 text-center mb-4">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                  <div key={index} className="text-sm font-semibold text-gray-700 py-2 border-b border-green-200">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-7 gap-2">
+                {generateCalendarDays().map((day, index) => {
+                  const dayEvents = getEventsForDate(day);
+                  const today = new Date();
+                  const isToday = day && new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString() === today.toDateString();
                   
-                  {/* Enhanced Calendar days */}
-                  {generateCalendarDays().map((day, index) => {
-                    const dayEvents = getEventsForDate(day);
-                    const today = new Date();
-                    const isToday = day && new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString() === today.toDateString();
-                    const isWeekend = index % 7 === 0 || index % 7 === 6;
-                    const eventCount = getEventCount(day);
-                    const hasEvents = eventCount > 0;
-                    
-                    return (
-                      <div
-                        key={index}
-                        onClick={() => handleDateClick(day)}
-                        className={`
-                          relative p-2 cursor-pointer rounded-xl transition-all duration-200 min-h-[85px] border
-                          ${!day ? 'bg-gray-50 border-gray-200 cursor-default' : ''}
-                          ${day && !isToday && !isWeekend ? 'bg-white border-gray-300 hover:bg-green-50 hover:border-green-400 hover:shadow-md' : ''}
-                          ${day && !isToday && isWeekend ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300' : ''}
-                          ${isToday ? 'bg-green-500 text-white border-green-600 shadow-lg' : ''}
-                          ${selectedDate === day && !isToday ? 'ring-2 ring-green-400 ring-offset-1' : ''}
-                          ${hasEvents && !isToday ? 'font-semibold' : ''}
-                        `}
-                      >
-                        <div className={`text-sm font-medium mb-1 ${isToday ? 'text-white' : isWeekend ? 'text-red-700' : 'text-gray-700'}`}>
-                          {day}
-                        </div>
-                        
-                        {/* Enhanced Event indicators */}
-                        {day && hasEvents && (
+                  return (
+                    <div
+                      key={index}
+                      className={`
+                        relative p-3 h-24 border rounded-xl transition-all duration-200 cursor-pointer
+                        ${!day ? 'bg-gray-50 border-gray-200 cursor-default' : 'bg-white border-gray-200 hover:border-green-400 hover:shadow-lg'}
+                        ${isToday ? 'ring-2 ring-green-500 bg-green-50 border-green-400' : ''}
+                      `}
+                      onClick={() => day && handleDateClick(day)}
+                    >
+                      {day && (
+                        <>
+                          <div className={`
+                            text-sm font-medium mb-2
+                            ${isToday ? 'text-green-700 font-bold' : 'text-gray-700'}
+                          `}>
+                            {day}
+                          </div>
                           <div className="space-y-1">
-                            {/* Event count badge */}
-                            {eventCount > 2 && (
-                              <div className={`absolute top-1 right-1 text-xs px-1.5 py-0.5 rounded-full font-bold ${
-                                isToday ? 'bg-white text-green-600' : 'bg-green-600 text-white'
-                              }`}>
-                                {eventCount}
+                            {dayEvents.slice(0, 2).map((event, eventIndex) => (
+                              <div
+                                key={eventIndex}
+                                className={`
+                                  text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity
+                                  ${event.status === 'Completed' ? 'bg-green-500 text-white' : 
+                                    event.status === 'Ongoing' ? 'bg-blue-500 text-white' : 
+                                    event.status === 'Moved' ? 'bg-orange-500 text-white' : 
+                                    'bg-gray-400 text-white'}
+                                `}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEventClick(event, day);
+                                }}
+                                title={event.event_name}
+                              >
+                                <div className="flex items-center gap-1">
+                                  <span className="truncate">{event.event_name}</span>
+                                  {event.duration && (
+                                    <span className="text-xs opacity-75">({event.duration}d)</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                            {dayEvents.length > 2 && (
+                              <div className="text-xs text-gray-500 italic">
+                                +{dayEvents.length - 2} more
                               </div>
                             )}
-                            
-                            {/* Color-coded event dots */}
-                            <div className="flex justify-center gap-1">
-                              {dayEvents.slice(0, 3).map((event, eventIndex) => {
-                                const colors = getEventColor(event, isToday);
-                                return (
-                                  <div
-                                    key={event.id}
-                                    className={`w-1.5 h-1.5 rounded-full ${colors.bg} ${isToday ? 'ring-1 ring-white' : ''}`}
-                                    title={event.event_name}
-                                  />
-                                );
-                              })}
-                              {eventCount > 3 && (
-                                <div className={`w-1.5 h-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-gray-400'}`} />
-                              )}
-                            </div>
-                            
-                            {/* Event names (compact) */}
-                            <div className="space-y-0.5">
-                              {dayEvents.slice(0, 1).map((event, eventIndex) => {
-                                const colors = getEventColor(event, isToday);
-                                return (
-                                  <div
-                                    key={event.id}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleEventClick(event, day);
-                                    }}
-                                    className={`text-xs truncate px-1 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity relative ${
-                                      isToday ? 'bg-white/20 text-white' : colors.bg
-                                    } ${isToday ? 'text-white' : colors.text}`}
-                                    title={event.event_name}
-                                  >
-                                    <div className="flex items-center gap-1">
-                                      <span className={`flex-shrink-0 ${isToday ? 'text-white' : 'text-gray-600'}`}>
-                                        {getStatusIcon(event.status)}
-                                      </span>
-                                      <span className="truncate">{event.event_name}</span>
-                                      {event.office && (
-                                        <span className={`text-xs font-medium flex-shrink-0 ${isToday ? 'text-white/70' : 'text-gray-500'}`}>
-                                          {getOfficeInitials(event.office)}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              {eventCount > 1 && (
-                                <div 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDateClick(day);
-                                  }}
-                                  className={`text-xs px-1 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity ${
-                                    isToday ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
-                                  }`}
-                                  title={`Click to see all ${eventCount} events`}
-                                >
-                                  +{eventCount - 1} more
-                                </div>
-                              )}
-                            </div>
                           </div>
-                        )}
-                        
-                        {/* Today indicator */}
-                        {isToday && (
-                          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Right Side - Legend and Event Details */}
-          <div className="w-full lg:w-80 space-y-4">
-            {/* Calendar Legend */}
-            <div className="p-4 bg-green-50 rounded-lg border-2 border-green-400 shadow-sm">
-              <h4 className="text-sm font-semibold text-green-700 mb-3">Calendar Legend</h4>
-              <div className="flex flex-wrap gap-4 text-xs mb-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-600">Today</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-red-100 border border-red-200 rounded"></div>
-                  <span className="text-gray-600">Weekend</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-blue-100 rounded-full"></div>
-                  <span className="text-gray-600">Event</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-green-600 text-white text-xs flex items-center justify-center rounded-full font-bold">3</div>
-                  <span className="text-gray-600">3+ events</span>
-                </div>
-              </div>
-              <div className="border-t border-green-300 pt-3">
-                <p className="text-xs font-semibold text-green-700 mb-2">Status Icons:</p>
-                <div className="flex flex-wrap gap-3 text-xs">
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-600">{getStatusIcon('Planned')}</span>
-                    <span className="text-gray-600">Planned</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-600">{getStatusIcon('Ongoing')}</span>
-                    <span className="text-gray-600">Ongoing</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-600">{getStatusIcon('Completed')}</span>
-                    <span className="text-gray-600">Completed</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-600">{getStatusIcon('Moved')}</span>
-                    <span className="text-gray-600">Moved</span>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-green-300 pt-3 mt-3">
-                <p className="text-xs font-semibold text-green-700 mb-1">Office Initials:</p>
-                <p className="text-xs text-gray-600">Event cards show office initials (e.g., "CEO" for City Environment Office)</p>
-              </div>
-            </div>
-
-            {/* Event Display */}
-            {selectedDate && (
-              <div className="p-4 bg-white rounded-lg border-2 border-green-300 shadow-sm">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-semibold text-green-800">
-                    {new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      month: 'long', 
-                      day: 'numeric', 
-                      year: 'numeric' 
-                    })}
-                  </h3>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    getEventsForDate(selectedDate).length === 0 
-                      ? 'bg-gray-100 text-gray-600' 
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    {getEventsForDate(selectedDate).length} events
-                  </span>
-                </div>
-                
-                <div className="space-y-2">
-                  {getEventsForDate(selectedDate).length === 0 ? (
-                    <div className="text-center py-4">
-                      <svg className="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="text-gray-500 text-sm">No events scheduled</p>
-                      <p className="text-gray-400 text-xs mt-1">Click on any day to see events</p>
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    getEventsForDate(selectedDate).map(event => {
-                      const colors = getEventColor(event, false);
-                      return (
-                        <div 
-                          key={event.id} 
-                          className={`p-3 rounded-lg border cursor-pointer hover:shadow-md transition-all ${colors.bg} ${colors.border}`}
-                          onClick={() => handleEventClick(event, selectedDate)}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <h4 className={`font-semibold text-sm ${colors.text}`}>{event.event_name}</h4>
-                              <div className="text-xs opacity-75 mt-1 space-y-0.5">
-                                {event.duration && <p>📅 {event.duration}</p>}
-                                {event.pillar && <p>🌿 {event.pillar}</p>}
-                                {event.office && <p>🏢 {event.office}</p>}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className={`flex-shrink-0 text-gray-600`}>
-                                {getStatusIcon(event.status)}
-                              </span>
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                event.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                                event.status === 'Ongoing' ? 'bg-yellow-100 text-yellow-800' :
-                                event.status === 'Moved' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
-                                {event.status}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Accomplishments Table */}
+          <div className="bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                    <FiTrendingUp className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">LCCAP Pillar Accomplishments</h3>
+                </div>
+                <div className="text-white/80 text-sm">
+                  Environmental Progress Tracking
                 </div>
               </div>
-            )}
+            </div>
+            
+            <div className="p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Pillar</th>
+                      <th className="text-center py-4 px-4 font-semibold text-gray-700">Total Events</th>
+                      <th className="text-center py-4 px-4 font-semibold text-gray-700">Completed</th>
+                      <th className="text-center py-4 px-4 font-semibold text-gray-700">In Progress</th>
+                      <th className="text-center py-4 px-4 font-semibold text-gray-700">Progress</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lccapPillars.map((pillar, index) => {
+                      const pillarEvents = allEvents.filter(event => event.pillar === pillar.name);
+                      const completedEvents = pillarEvents.filter(event => event.status === 'Completed').length;
+                      const inProgressEvents = pillarEvents.filter(event => event.status === 'Ongoing').length;
+                      const progress = pillarEvents.length > 0 ? Math.round((completedEvents / pillarEvents.length) * 100) : 0;
+                      
+                      return (
+                        <tr key={index} className="border-b border-gray-100 hover:bg-green-50/50 transition-colors">
+                          <td className="py-4 px-4">
+                            <div className="flex items-center">
+                              <div 
+                                className="w-4 h-4 rounded-full mr-3 shadow-sm"
+                                style={{ backgroundColor: pillar.color }}
+                              ></div>
+                              <span className="font-medium text-gray-800">{pillar.name}</span>
+                            </div>
+                          </td>
+                          <td className="text-center py-4 px-4">
+                            <span className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg font-semibold text-gray-700">
+                              {pillarEvents.length}
+                            </span>
+                          </td>
+                          <td className="text-center py-4 px-4">
+                            <span className="inline-flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg font-semibold text-green-700">
+                              {completedEvents}
+                            </span>
+                          </td>
+                          <td className="text-center py-4 px-4">
+                            <span className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg font-semibold text-blue-700">
+                              {inProgressEvents}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center justify-center">
+                              <div className="w-full max-w-32 bg-gray-200 rounded-full h-3 mr-3">
+                                <div 
+                                  className="h-3 rounded-full transition-all duration-500 shadow-sm"
+                                  style={{ 
+                                    width: `${progress}%`,
+                                    backgroundColor: progress >= 70 ? '#10b981' : progress >= 50 ? '#84cc16' : '#f59e0b'
+                                  }}
+                                ></div>
+                              </div>
+                              <span className={`text-sm font-bold min-w-[3rem] text-center ${
+                                progress >= 70 ? 'text-green-600' : 
+                                progress >= 50 ? 'text-lime-600' : 
+                                'text-amber-600'
+                              }`}>
+                                {progress}%
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Event Details Modal */}
+        </div>
+      </div>
+
+      {/* Professional Event Details Modal */}
       {isEventModalOpen && selectedEventForModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 m-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 m-4 max-w-md w-full max-h-[90vh] overflow-y-auto border border-green-100">
             {selectedEventForModal && selectedEventForModal.isMultipleEvents ? (
               <React.Fragment>
-                {/* Multiple events view */}
-                <div>
-                  <h4 className="text-lg font-semibold text-green-800 mb-2">
+                <div className="mb-6">
+                  <h4 className="text-xl font-bold text-gray-800 mb-2">
                     All Events for {new Date(selectedEventForModal.date).toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       month: 'long', 
                       day: 'numeric' 
                     })}
                   </h4>
-                  <p className="text-sm text-gray-500">{selectedEventForModal.allEvents.length} events scheduled</p>
+                  <p className="text-gray-600">{selectedEventForModal.allEvents.length} events scheduled</p>
                 </div>
                 
-                <div className="space-y-3 max-h-60 overflow-y-auto">
+                <div className="space-y-3 max-h-60 overflow-y-auto mb-6">
                   {selectedEventForModal.allEvents.map(event => {
                     const colors = getEventColor(event, false);
                     return (
-                      <div key={event.id} className={`p-3 rounded-lg border ${colors.bg} ${colors.border}`}>
+                      <div key={event.id} className={`p-4 rounded-xl border ${colors.bg} ${colors.border}`}>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h5 className="font-semibold text-gray-900 mb-1">{event.event_name}</h5>
-                            <div className="text-xs opacity-75 mt-1 space-y-0.5">
-                              {event.duration && <p>📅 {event.duration}</p>}
-                              {event.pillar && <p>🌿 {event.pillar}</p>}
-                              {event.office && <p>🏢 {event.office}</p>}
+                            <h5 className="font-semibold text-gray-900 mb-2">{event.event_name}</h5>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              {event.duration && <p>📅 Duration: {event.duration}</p>}
+                              {event.pillar && <p>🌿 Pillar: {event.pillar}</p>}
+                              {event.office && <p>🏢 Office: {event.office}</p>}
                             </div>
                           </div>
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
                             event.status === 'Completed' ? 'bg-green-100 text-green-800' :
                             event.status === 'Ongoing' ? 'bg-yellow-100 text-yellow-800' :
                             'bg-gray-100 text-gray-800'
@@ -756,85 +671,20 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {/* Single event view */}
-                {selectedEventForModal && !selectedEventForModal.isMultipleEvents && !showMoveInterface ? (
-                  <div>
-                    <h4 className="text-lg font-semibold text-green-800 mb-2">{selectedEventForModal.event_name}</h4>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Date</p>
-                        <p className="font-medium">{new Date(selectedEventForModal.date).toLocaleDateString('en-US', { 
-                          weekday: 'long', 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}</p>
-                      </div>
-                      
-                      {selectedEventForModal.duration && (
-                        <div>
-                          <p className="text-sm text-gray-500">Duration</p>
-                          <p className="font-medium">{selectedEventForModal.duration}</p>
-                        </div>
-                      )}
-                      
-                      {selectedEventForModal.pillar && (
-                        <div>
-                          <p className="text-sm text-gray-500">Pillar</p>
-                          <p className="font-medium">{selectedEventForModal.pillar}</p>
-                        </div>
-                      )}
-                      
-                      {selectedEventForModal.office && (
-                        <div>
-                          <p className="text-sm text-gray-500">Office</p>
-                          <p className="font-medium">{selectedEventForModal.office}</p>
-                        </div>
-                      )}
-                      
-                      <div>
-                        <p className="text-sm text-gray-500">Status</p>
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          selectedEventForModal.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                          selectedEventForModal.status === 'Ongoing' ? 'bg-yellow-100 text-yellow-800' :
-                          selectedEventForModal.status === 'Moved' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {selectedEventForModal.status}
-                        </span>
-                      </div>
-                      
-                      {selectedEventForModal.created_at && (
-                        <div>
-                          <p className="text-sm text-gray-500">Created</p>
-                          <p className="font-medium text-xs">
-                            {new Date(selectedEventForModal.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <React.Fragment>
-                    {/* Move Event Interface */}
-                    <div>
-                      <h4 className="text-lg font-semibold text-green-800 mb-4">Move Event: {selectedEventForModal.event_name}</h4>
-                      
+                <div className="mb-6">
+                  <h4 className="text-xl font-bold text-gray-800 mb-4">{selectedEventForModal.event_name}</h4>
+                  
+                  {showMoveInterface ? (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                      <h5 className="text-lg font-semibold text-amber-800 mb-3">Move Event</h5>
                       <div className="mb-4">
-                        <p className="text-sm text-gray-600 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Current Date: {new Date(selectedEventForModal.date).toLocaleDateString('en-US', { 
                             weekday: 'long', 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric' 
                           })}
-                        </p>
-                      </div>
-                      
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Select New Date:
                         </label>
                         <input
                           type="date"
@@ -844,25 +694,62 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
                           min={new Date().toISOString().split('T')[0]}
                         />
                       </div>
-                      
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <p className="text-sm text-yellow-800">
-                          <strong>Note:</strong> This will change the current event status to "Moved" and create a new event with the selected date.
-                        </p>
+                      <p className="text-sm text-amber-700">
+                        <strong>Note:</strong> This will change the current event status to "Moved" and create a new event with the selected date.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Date</p>
+                        <p className="font-semibold text-gray-800">{new Date(selectedEventForModal.date).toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}</p>
+                      </div>
+                      {selectedEventForModal.duration && (
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Duration</p>
+                          <p className="font-semibold text-gray-800">{selectedEventForModal.duration}</p>
+                        </div>
+                      )}
+                      {selectedEventForModal.pillar && (
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Pillar</p>
+                          <p className="font-semibold text-gray-800">{selectedEventForModal.pillar}</p>
+                        </div>
+                      )}
+                      {selectedEventForModal.office && (
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Office</p>
+                          <p className="font-semibold text-gray-800">{selectedEventForModal.office}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Status</p>
+                        <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
+                          selectedEventForModal.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                          selectedEventForModal.status === 'Ongoing' ? 'bg-yellow-100 text-yellow-800' :
+                          selectedEventForModal.status === 'Moved' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {selectedEventForModal.status}
+                        </span>
                       </div>
                     </div>
-                  </React.Fragment>
-                )}
+                  )}
+                </div>
               </React.Fragment>
             )}
             
-            <div className="mt-6 flex justify-end space-x-2">
+            <div className="flex justify-end space-x-3">
               {!showMoveInterface ? (
                 <React.Fragment>
                   {selectedEventForModal.status !== 'Completed' && selectedEventForModal.status !== 'Moved' && (
                     <button
                       onClick={() => setShowMoveInterface(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                     >
                       Move Event
                     </button>
@@ -872,14 +759,14 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
                 <React.Fragment>
                   <button
                     onClick={() => setShowMoveInterface(false)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => selectedMoveDate && handleMoveEvent(selectedEventForModal, selectedMoveDate)}
                     disabled={!selectedMoveDate}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
+                    className={`px-4 py-2 rounded-lg transition-colors font-medium ${
                       selectedMoveDate 
                         ? 'bg-blue-600 text-white hover:bg-blue-700' 
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
@@ -891,7 +778,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
               )}
               <button
                 onClick={closeEventModal}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
               >
                 Close
               </button>
@@ -899,7 +786,6 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };
