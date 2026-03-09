@@ -3,6 +3,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { PageLoading } from './components/LoadingStates';
 import Login from './components/pages/Login';
 import Dashboard from './components/pages/Dashboard';
+import ModernDashboard from './components/pages/ModernDashboard';
 import Accomplishment from './components/pages/Accomplishment';
 import Calendar from './components/pages/Calendar';
 import ReportManagement from './components/pages/ReportManagement';
@@ -56,6 +57,8 @@ function AppContent() {
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard onLogout={handleLogout} navigateToPage={navigateToPage} />;
+      case 'modern-dashboard':
+        return <ModernDashboard />;
       case 'accomplishment':
         return <Accomplishment onLogout={handleLogout} navigateToPage={navigateToPage} />;
       case 'calendar':

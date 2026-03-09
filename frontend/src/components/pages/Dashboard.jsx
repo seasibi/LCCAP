@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { FiCalendar, FiCheckCircle, FiTrendingUp } from 'react-icons/fi';
 import { calendarEventsAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { getTextClass, getStatisticsCardClasses } from '../../utils/styleUtils';
 
 import Header from '../layout/Header';
+import StatCard from '../StatCard';
+import ProgressChart from '../ProgressChart';
+import { lccapPillars } from '../../data/mockData';
 
 import baguioLogo from '../../assets/images/baguio-logo.png';
 
@@ -307,7 +311,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
   };
 
   return (
-    <div className="p-6 flex flex-col min-h-screen">
+    <div className="p-6">
       {/* Page Header */}
       <div className="mb-6">
         <div>
@@ -316,74 +320,93 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
         </div>
       </div>
 
-      {/* Scrollable Dashboard Content */}
-      <div className="flex-1 space-y-6">
+      {/* Dashboard Content */}
+      <div className="space-y-6">
         {/* First Level - Statistics Cards */}
-        <div className="grid grid-cols-3 gap-6">
-          {/* Total Events Card */}
-          <div className={getStatisticsCardClasses('leadingOffice')}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-700 font-medium">Total Events</p>
-                <p className="text-3xl font-bold text-blue-900">{getEventStatistics().totalEvents}</p>
-              </div>
-              <div className="bg-blue-600 text-white p-3 rounded-lg">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <StatCard
+            icon={FiCalendar}
+            title="Total Events"
+            value={getEventStatistics().totalEvents}
+            subtitle="All recorded activities"
+            color="#2E7D32"
+          />
+          <StatCard
+            icon={FiCheckCircle}
+            title="Completed Events"
+            value={getEventStatistics().completedEvents}
+            subtitle="Successfully finished"
+            color="#66BB6A"
+          />
+        </div>
 
-          {/* Completed Events Card */}
-          <div className={getStatisticsCardClasses('accomplishment')}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-emerald-700 font-medium">Completed</p>
-                <p className="text-3xl font-bold text-emerald-900">{getEventStatistics().completedEvents}</p>
-                <div className="flex items-center mt-2">
-                  <div className="w-full bg-emerald-200 rounded-full h-2">
-                    <div 
-                      className="bg-emerald-600 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${getEventStatistics().completionRate}%` }}
-                    ></div>
-                  </div>
-                  <span className="ml-2 text-xs text-emerald-700 font-medium">
-                    {getEventStatistics().completionRate}%
-                  </span>
-                </div>
-              </div>
-              <div className="bg-emerald-600 text-white p-3 rounded-lg">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
+        {/* LCCAP Pillar Accomplishments */}
+        <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-green-400">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-800">LCCAP Pillar Accomplishments</h3>
+            <FiTrendingUp className="text-green-600 text-2xl" />
           </div>
-
-          {/* Offices/Department Card */}
-          <div className={getStatisticsCardClasses('departments')}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-700 font-medium">Offices</p>
-                <p className="text-3xl font-bold text-blue-900">{[...new Set(allEvents.map(event => event.office).filter(Boolean))].length}</p>
-                <p className="text-xs text-blue-600 mt-1">Active Departments</p>
-              </div>
-              <div className="bg-blue-600 text-white p-3 rounded-lg">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-            </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-green-400">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Pillar</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Total Events</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Completed</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700">In Progress</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lccapPillars.map((pillar, index) => {
+                  const pillarEvents = allEvents.filter(event => event.pillar === pillar.name);
+                  const completedEvents = pillarEvents.filter(event => event.status === 'Completed').length;
+                  const inProgressEvents = pillarEvents.filter(event => event.status === 'Ongoing').length;
+                  const progress = pillarEvents.length > 0 ? Math.round((completedEvents / pillarEvents.length) * 100) : 0;
+                  
+                  return (
+                    <tr key={index} className="border-b border-gray-200 hover:bg-green-50 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-3"
+                            style={{ backgroundColor: pillar.color }}
+                          ></div>
+                          <span className="font-medium text-gray-800">{pillar.name}</span>
+                        </div>
+                      </td>
+                      <td className="text-center py-3 px-4 text-gray-700">{pillarEvents.length}</td>
+                      <td className="text-center py-3 px-4 text-gray-700">{completedEvents}</td>
+                      <td className="text-center py-3 px-4 text-gray-700">{inProgressEvents}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-center">
+                          <div className="w-full max-w-24 bg-gray-200 rounded-full h-2 mr-2">
+                            <div 
+                              className="h-2 rounded-full transition-all duration-500"
+                              style={{ 
+                                width: `${progress}%`,
+                                backgroundColor: progress >= 70 ? '#2E7D32' : progress >= 50 ? '#66BB6A' : '#FFA726'
+                              }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-medium text-gray-700">{progress}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 
         {/* Second Level - Calendar and Side Panel */}
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Side - Calendar */}
           <div className="flex-1">
             {/* Full Width Calendar */}
-            <div className="bg-green-50 rounded-lg shadow-lg p-8 flex flex-col min-h-fit border-2 border-green-400">
+            <div className="bg-green-50 rounded-lg shadow-lg p-4 lg:p-6 border-2 border-green-400">
               {/* Enhanced Calendar Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-2">
@@ -565,7 +588,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
           </div>
 
           {/* Right Side - Legend and Event Details */}
-          <div className="w-96 space-y-4">
+          <div className="w-full lg:w-80 space-y-4">
             {/* Calendar Legend */}
             <div className="p-4 bg-green-50 rounded-lg border-2 border-green-400 shadow-sm">
               <h4 className="text-sm font-semibold text-green-700 mb-3">Calendar Legend</h4>
@@ -685,9 +708,8 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
             )}
           </div>
         </div>
-      </div>
 
-      {/* Event Details Modal */}
+        {/* Event Details Modal */}
       {isEventModalOpen && selectedEventForModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 m-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -877,6 +899,7 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
