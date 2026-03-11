@@ -102,6 +102,17 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     '7. Knowledge and Capacity Development': ['Climate Change Training', 'Capacity Building Program', 'Public Awareness']
   };
 
+  // Mapping of pillars to their associated offices
+  const pillarOffices = {
+    '1. Food Security': ['City Veterinary and Agriculture Office (CVAO)', 'City Social Welfare and Development Office (CSWDO)', 'City Health Services Office (CHSO)'],
+    '2. Water Sufficiency': ['City Planning, Development and Sustainability Office (CPDSO)', 'City Engineering Office', 'Department of Public Works and Highways (DPWH)'],
+    '3. Ecological and Environmental stability': ['City Planning, Development and Sustainability Office (CPDSO)', 'City Environment and Parks Management Office (CEPMO)'],
+    '4. Human Security': ['City Health Services Office (CHSO)', 'City Social Welfare and Development Office (CSWDO)', 'City Disaster Risk Reduction and Management Office (CDRRMO)', 'Bureau of Fire Protection (BFP)'],
+    '5. Climate-Smart Industries and Services': ['City Mayor\'s Office (CMO)', 'City Building and Architecture Office (CBAO)', 'City General Services Office (CGSO)'],
+    '6. Sustainable Energy': ['City Engineering Office', 'Benguet Electric Cooperative (BENECO)', 'City General Services Office (CGSO)'],
+    '7. Knowledge and Capacity Development': ['City Mayor\'s Office (CMO)', 'City Human Resource Management Office (CHRMO)', 'Human Resource Management Office (HRMO)']
+  };
+
   const officePrograms = {
     'City Mayor\'s Office (CMO)': ['Climate Change Training', 'Capacity Building Program', 'Public Awareness', 'Green Business Certification'],
     'City Human Resource Management Office (CHRMO)': ['Capacity Building Program', 'Climate Change Training'],
@@ -165,7 +176,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
         pillar: '',
         program: '',
         office: '',
-        date: date.toISOString().split('T')[0],
+        date: date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'),
         duration: '',
         status: 'Planned'
       });
@@ -372,6 +383,8 @@ const Calendar = ({ onLogout, navigateToPage }) => {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const isToday = date.toDateString() === today.toDateString();
+      const isFuture = date > today;
+      const canAddEvent = isToday || isFuture;
       const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
       const dayEvents = getEventsForDate(day);
       
@@ -391,15 +404,17 @@ const Calendar = ({ onLogout, navigateToPage }) => {
         >
           <div className="flex justify-between items-start p-1">
             <span className={`text-sm font-medium mb-1 ${isToday ? 'text-white' : isWeekend ? 'text-red-700' : 'text-gray-700'}`}>{day}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                openEventForm(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
-              }}
-              className="p-1 opacity-30 hover:opacity-100 transition-opacity duration-200 rounded hover:bg-green-100"
-            >
-              <PlusIcon />
-            </button>
+            {canAddEvent && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEventForm(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+                }}
+                className="p-1 opacity-30 hover:opacity-100 transition-opacity duration-200 rounded hover:bg-green-100"
+              >
+                <PlusIcon />
+              </button>
+            )}
           </div>
           
           {/* Event indicators */}
@@ -699,7 +714,7 @@ const Calendar = ({ onLogout, navigateToPage }) => {
                       </label>
                       <select
                         value={formData.pillar}
-                        onChange={(e) => setFormData({...formData, pillar: e.target.value, program: ''})}
+                        onChange={(e) => setFormData({...formData, pillar: e.target.value, office: '', program: ''})}
                         className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
                       >
                         <option value="">Select Pillar</option>
@@ -717,11 +732,17 @@ const Calendar = ({ onLogout, navigateToPage }) => {
                         value={formData.office}
                         onChange={(e) => setFormData({...formData, office: e.target.value, program: ''})}
                         className="w-full h-10 px-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        disabled={!formData.pillar}
                       >
                         <option value="">Select Office</option>
-                        {offices.map(office => (
-                          <option key={office} value={office}>{office}</option>
-                        ))}
+                        {formData.pillar && pillarOffices[formData.pillar] ? 
+                          pillarOffices[formData.pillar].map(office => (
+                            <option key={office} value={office}>{office}</option>
+                          )) : 
+                          offices.map(office => (
+                            <option key={office} value={office}>{office}</option>
+                          ))
+                        }
                       </select>
                     </div>
                     

@@ -10,45 +10,57 @@ import {
   FiX
 } from 'react-icons/fi';
 
-const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+const Sidebar = ({ isOpen, currentPage, navigateToPage }) => {
   const [pillarsExpanded, setPillarsExpanded] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const pillarPageIds = [
+    'food-security', 'water-sufficiency', 'ecological-stability', 
+    'human-security', 'climate-smart-industries', 'sustainable-energy', 'knowledge-capacity'
+  ];
+
+  // Auto-expand pillars when a pillar page is active
+  React.useEffect(() => {
+    if (pillarPageIds.includes(currentPage)) {
+      setPillarsExpanded(true);
+    }
+  }, [currentPage]);
 
   const menuItems = [
     {
       icon: FiHome,
       label: 'Dashboard',
-      active: true,
+      pageId: 'dashboard',
       href: '#dashboard'
     },
     {
       icon: FiCalendar,
       label: 'Events',
-      active: false,
+      pageId: 'calendar',
       href: '#events'
     },
     {
       icon: FiFileText,
       label: 'Reports',
-      active: false,
+      pageId: 'accomplishment',
       href: '#reports'
     },
     {
       icon: FiSettings,
       label: 'Administration',
-      active: false,
+      pageId: 'user-management',
       href: '#administration'
     }
   ];
 
   const lccapPillars = [
-    'Food Security',
-    'Water Sufficiency',
-    'Ecological Stability',
-    'Human Security',
-    'Climate-Smart Industries',
-    'Sustainable Energy',
-    'Knowledge & Capacity'
+    { name: 'Food Security', pageId: 'food-security' },
+    { name: 'Water Sufficiency', pageId: 'water-sufficiency' },
+    { name: 'Ecological Stability', pageId: 'ecological-stability' },
+    { name: 'Human Security', pageId: 'human-security' },
+    { name: 'Climate-Smart Industries', pageId: 'climate-smart-industries' },
+    { name: 'Sustainable Energy', pageId: 'sustainable-energy' },
+    { name: 'Knowledge & Capacity', pageId: 'knowledge-capacity' }
   ];
 
   const togglePillars = () => {
@@ -78,7 +90,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       <div className={`
         fixed lg:static inset-y-0 left-0 z-40 bg-white shadow-xl lg:shadow-sm
         transition-all duration-300 ease-in-out
-        ${isCollapsed ? 'w-20' : 'w-64'}
+        ${isOpen ? 'w-64' : 'w-0 lg:w-20'}
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="h-full flex flex-col">
@@ -92,7 +104,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 >
                   <span className="text-white font-bold text-lg">L</span>
                 </div>
-                {!isCollapsed && (
+                                {!isOpen && (
                   <div>
                     <h2 className="font-bold text-lg" style={{ color: '#2E7D32' }}>
                       LCCAP
@@ -102,13 +114,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 )}
               </div>
               <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
+                onClick={() => {}}
                 className="hidden lg:block p-1 rounded hover:bg-gray-100"
               >
-                {isCollapsed ? (
-                  <FiChevronRight className="text-gray-600" />
-                ) : (
+                {isOpen ? (
                   <FiChevronDown className="text-gray-600" />
+                ) : (
+                  <FiChevronRight className="text-gray-600" />
                 )}
               </button>
             </div>
@@ -117,27 +129,27 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             {menuItems.map((item, index) => (
-              <a
+              <button
                 key={index}
-                href={item.href}
+                onClick={() => navigateToPage(item.pageId)}
                 className={`
                   flex items-center px-3 py-2 rounded-lg transition-colors duration-200
-                  ${item.active 
+                  ${currentPage === item.pageId 
                     ? 'bg-green-50 text-green-700 border-l-4' 
                     : 'hover:bg-gray-50 text-gray-700'
                   }
-                  ${isCollapsed ? 'justify-center' : 'justify-start'}
+                  ${!isOpen ? 'justify-center' : 'justify-start'}
                 `}
                 style={{ 
-                  borderColor: item.active ? '#2E7D32' : 'transparent',
-                  color: item.active ? '#2E7D32' : '#263238'
+                  borderColor: currentPage === item.pageId ? '#2E7D32' : 'transparent',
+                  color: currentPage === item.pageId ? '#2E7D32' : '#263238'
                 }}
               >
-                <item.icon className={`text-xl ${isCollapsed ? '' : 'mr-3'}`} />
-                {!isCollapsed && (
+                <item.icon className={`text-xl ${!isOpen ? '' : 'mr-3'}`} />
+                                {!isOpen && (
                   <span className="font-medium">{item.label}</span>
                 )}
-              </a>
+              </button>
             ))}
 
             {/* LCCAP Pillars */}
@@ -146,17 +158,24 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 onClick={togglePillars}
                 className={`
                   w-full flex items-center px-3 py-2 rounded-lg transition-colors duration-200
-                  hover:bg-gray-50 text-gray-700
-                  ${isCollapsed ? 'justify-center' : 'justify-between'}
+                  ${currentPage && pillarPageIds.includes(currentPage)
+                    ? 'bg-green-50 text-green-700 border-l-4' 
+                    : 'hover:bg-gray-50 text-gray-700'
+                  }
+                  ${!isOpen ? 'justify-center' : 'justify-between'}
                 `}
+                style={{ 
+                  borderColor: currentPage && pillarPageIds.includes(currentPage) ? '#2E7D32' : 'transparent',
+                  color: currentPage && pillarPageIds.includes(currentPage) ? '#2E7D32' : '#263238'
+                }}
               >
                 <div className="flex items-center">
                   <span className="text-xl mr-3">🌱</span>
-                  {!isCollapsed && (
+                                  {!isOpen && (
                     <span className="font-medium">LCCAP Pillars</span>
                   )}
                 </div>
-                {!isCollapsed && (
+                                {!isOpen && (
                   <FiChevronRight 
                     className={`text-sm transition-transform duration-200 ${
                       pillarsExpanded ? 'rotate-90' : ''
@@ -165,16 +184,22 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 )}
               </button>
 
-              {pillarsExpanded && !isCollapsed && (
+              {pillarsExpanded && (
                 <div className="mt-2 ml-8 space-y-1">
                   {lccapPillars.map((pillar, index) => (
-                    <a
+                    <button
                       key={index}
-                      href="#"
-                      className="block px-3 py-1 text-sm text-gray-600 hover:text-green-700 hover:bg-green-50 rounded transition-colors duration-200"
+                      onClick={() => navigateToPage(pillar.pageId)}
+                      className={`
+                        block w-full text-left px-3 py-1 text-sm rounded transition-colors duration-200
+                        ${currentPage === pillar.pageId 
+                          ? 'text-green-700 bg-green-50' 
+                          : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
+                        }
+                      `}
                     >
-                      {pillar}
-                    </a>
+                      {pillar.name}
+                    </button>
                   ))}
                 </div>
               )}
