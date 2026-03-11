@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiCalendar, FiCheckCircle, FiTrendingUp } from 'react-icons/fi';
-import { calendarEventsAPI } from '../../services/api';
+import { calendarEventsAPI, projectsAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { getTextClass, getStatisticsCardClasses } from '../../utils/styleUtils';
 
@@ -18,6 +18,8 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
   const [selectedDate, setSelectedDate] = useState(null);
   const [events, setEvents] = useState({});
   const [allEvents, setAllEvents] = useState([]); // Store full event objects for color coding
+  const [projects, setProjects] = useState([]); // Store projects from all pillars
+  const [loading, setLoading] = useState(true);
   const [notificationsShown, setNotificationsShown] = useState(() => {
     const savedNotifications = localStorage.getItem('notificationsShown');
     return savedNotifications ? new Set(JSON.parse(savedNotifications)) : new Set();
@@ -54,8 +56,12 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
       await calendarEventsAPI.create(newEventData);
 
       // Reload events to reflect changes
-      const response = await calendarEventsAPI.getAll();
-      setAllEvents(response.data);
+      const eventsResponse = await calendarEventsAPI.getAll();
+      setAllEvents(eventsResponse.data);
+
+      // Reload projects to reflect any changes
+      const projectsResponse = await projectsAPI.getAll();
+      setProjects(projectsResponse.data);
 
       // Close modal
       closeEventModal();
@@ -193,20 +199,31 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
     });
   };
 
-  // Load events from API on component mount
+  // Load events and projects from API on component mount
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadData = async () => {
       try {
+        setLoading(true);
         console.log('Dashboard: Loading events from API...');
-        const response = await calendarEventsAPI.getAll();
-        console.log('Dashboard: Loaded events from API:', response.data);
-        setAllEvents(response.data);
+        const eventsResponse = await calendarEventsAPI.getAll();
+        console.log('Dashboard: Loaded events from API:', eventsResponse.data);
+        setAllEvents(eventsResponse.data);
+
+        console.log('Dashboard: Loading projects from API...');
+        const projectsResponse = await projectsAPI.getAll();
+        console.log('Dashboard: Loaded projects from API:', projectsResponse.data);
+        setProjects(projectsResponse.data);
+        
+        // Debug: Log pillar stats calculation
+        console.log('Dashboard: Projects loaded:', projectsResponse.data.length);
       } catch (error) {
-        console.error('Dashboard: Error loading events from API:', error);
+        console.error('Dashboard: Error loading data from API:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadEvents();
+    loadData();
   }, []);
 
   const getEventCount = (day) => {
@@ -221,6 +238,46 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
   const resetNotifications = () => {
     setNotificationsShown(new Set());
   };
+
+  // Calculate pillar statistics from projects data
+  const calculatePillarStats = () => {
+    const pillars = [
+      { name: '1. Food Security', color: '#2E7D32', displayName: 'Food Security' },
+      { name: '2. Water Sufficiency', color: '#1E88E5', displayName: 'Water Sufficiency' },
+      { name: '3. Ecological and Environmental stability', color: '#66BB6A', displayName: 'Ecological Stability' },
+      { name: '4. Human Security', color: '#2E7D32', displayName: 'Human Security' },
+      { name: '5. Climate-Smart Industries and Services', color: '#1E88E5', displayName: 'Climate-Smart Industries' },
+      { name: '6. Sustainable Energy', color: '#66BB6A', displayName: 'Sustainable Energy' },
+      { name: '7. Knowledge and Capacity Development', color: '#2E7D32', displayName: 'Knowledge & Capacity' }
+    ];
+
+    return pillars.map(pillar => {
+      const pillarProjects = projects.filter(project => project.pillar === pillar.name);
+      const totalProjects = pillarProjects.length;
+      const completedProjects = pillarProjects.filter(project => project.status === 'Completed').length;
+      const inProgressProjects = pillarProjects.filter(project => 
+        project.status === 'In Progress' || project.status === 'Ongoing'
+      ).length;
+      
+      // Calculate average accomplishment percentage
+      const avgAccomplishment = totalProjects > 0 
+        ? Math.round(pillarProjects.reduce((sum, project) => sum + (project.accomplishment || 0), 0) / totalProjects)
+        : 0;
+
+      return {
+        ...pillar,
+        totalProjects,
+        completedProjects,
+        inProgressProjects,
+        progress: avgAccomplishment
+      };
+    });
+  };
+
+  const pillarStats = calculatePillarStats();
+  
+  // Debug: Log calculated pillar stats
+  console.log('Dashboard: Calculated pillar stats:', pillarStats);
 
   const getEventStatistics = () => {
     const totalEvents = allEvents.length;
@@ -549,76 +606,80 @@ const Dashboard = ({ onLogout, navigateToPage, sidebarOpen, toggleSidebar }) => 
             </div>
             
             <div className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Pillar</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-700">Total Events</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-700">Completed</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-700">In Progress</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-700">Progress</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lccapPillars.map((pillar, index) => {
-                      const pillarEvents = allEvents.filter(event => event.pillar === pillar.name);
-                      const completedEvents = pillarEvents.filter(event => event.status === 'Completed').length;
-                      const inProgressEvents = pillarEvents.filter(event => event.status === 'Ongoing').length;
-                      const progress = pillarEvents.length > 0 ? Math.round((completedEvents / pillarEvents.length) * 100) : 0;
-                      
-                      return (
-                        <tr key={index} className="border-b border-gray-100 hover:bg-green-50/50 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center">
-                              <div 
-                                className="w-4 h-4 rounded-full mr-3 shadow-sm"
-                                style={{ backgroundColor: pillar.color }}
-                              ></div>
-                              <span className="font-medium text-gray-800">{pillar.name}</span>
-                            </div>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <span className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg font-semibold text-gray-700">
-                              {pillarEvents.length}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <span className="inline-flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg font-semibold text-green-700">
-                              {completedEvents}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <span className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg font-semibold text-blue-700">
-                              {inProgressEvents}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center justify-center">
-                              <div className="w-full max-w-32 bg-gray-200 rounded-full h-3 mr-3">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-gray-500 font-medium">Loading pillar data...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-4 px-4 font-semibold text-gray-700">Pillar</th>
+                        <th className="text-center py-4 px-4 font-semibold text-gray-700">Total Projects</th>
+                        <th className="text-center py-4 px-4 font-semibold text-gray-700">Completed</th>
+                        <th className="text-center py-4 px-4 font-semibold text-gray-700">In Progress</th>
+                        <th className="text-center py-4 px-4 font-semibold text-gray-700">Progress</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pillarStats.map((pillar, index) => {
+                        return (
+                          <tr key={index} className="border-b border-gray-100 hover:bg-green-50/50 transition-colors">
+                            <td className="py-4 px-4">
+                              <div className="flex items-center">
                                 <div 
-                                  className="h-3 rounded-full transition-all duration-500 shadow-sm"
-                                  style={{ 
-                                    width: `${progress}%`,
-                                    backgroundColor: progress >= 70 ? '#10b981' : progress >= 50 ? '#84cc16' : '#f59e0b'
-                                  }}
+                                  className="w-4 h-4 rounded-full mr-3 shadow-sm"
+                                  style={{ backgroundColor: pillar.color }}
                                 ></div>
+                                <span className="font-medium text-gray-800">{pillar.displayName}</span>
                               </div>
-                              <span className={`text-sm font-bold min-w-[3rem] text-center ${
-                                progress >= 70 ? 'text-green-600' : 
-                                progress >= 50 ? 'text-lime-600' : 
-                                'text-amber-600'
-                              }`}>
-                                {progress}%
+                            </td>
+                            <td className="text-center py-4 px-4">
+                              <span className="inline-flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg font-semibold text-gray-700">
+                                {pillar.totalProjects}
                               </span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                            </td>
+                            <td className="text-center py-4 px-4">
+                              <span className="inline-flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg font-semibold text-green-700">
+                                {pillar.completedProjects}
+                              </span>
+                            </td>
+                            <td className="text-center py-4 px-4">
+                              <span className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg font-semibold text-blue-700">
+                                {pillar.inProgressProjects}
+                              </span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex items-center justify-center">
+                                <div className="w-full max-w-32 bg-gray-200 rounded-full h-3 mr-3">
+                                  <div 
+                                    className="h-3 rounded-full transition-all duration-500 shadow-sm"
+                                    style={{ 
+                                      width: `${pillar.progress}%`,
+                                      backgroundColor: pillar.progress >= 70 ? '#10b981' : pillar.progress >= 50 ? '#84cc16' : '#f59e0b'
+                                    }}
+                                  ></div>
+                                </div>
+                                <span className={`text-sm font-bold min-w-[3rem] text-center ${
+                                  pillar.progress >= 70 ? 'text-green-600' : 
+                                  pillar.progress >= 50 ? 'text-lime-600' : 
+                                  'text-amber-600'
+                                }`}>
+                                  {pillar.progress}%
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
 

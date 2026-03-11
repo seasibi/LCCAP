@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OFFICES } from '../../utils/constants';
 import { useToast } from '../../context/ToastContext';
-import { calendarEventsAPI } from '../../services/api';
+import { calendarEventsAPI, projectsAPI } from '../../services/api';
 
 const WaterSufficiency = () => {
   const { showSuccess, showError, showInfo } = useToast();
@@ -82,13 +82,26 @@ const WaterSufficiency = () => {
     loadEvents();
   }, []);
 
-  // Calculate projects from events
+  // Load projects from API
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    const calculatedProjects = calculateProjectsFromEvents(events);
-    setProjects(calculatedProjects);
-  }, [events]);
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await projectsAPI.getByPillar('2. Water Sufficiency');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        showError('Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   // Calculate stats from projects
   const stats = projects.length > 0 ? {
@@ -96,8 +109,8 @@ const WaterSufficiency = () => {
       prev.accomplishment > current.accomplishment ? prev : current
     ).office,
     overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
-    totalDepartments: projects.length,
-    totalProjects: events.filter(event => event.pillar && event.pillar.includes('Water Sufficiency')).length
+    totalDepartments: [...new Set(projects.map(p => p.office))].length,
+    totalProjects: projects.length
   } : {
     leadingOffice: 'No data',
     overallAccomplishment: 0,
@@ -145,7 +158,7 @@ const WaterSufficiency = () => {
     // Filter by search term
     if (filters.searchTerm) {
       filtered = filtered.filter(project => 
-        project.projectName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        project.project_name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
         project.office.toLowerCase().includes(filters.searchTerm.toLowerCase())
       );
     }
@@ -157,37 +170,50 @@ const WaterSufficiency = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleSaveProject = (e) => {
+  const handleSaveProject = async (e) => {
     e.preventDefault(); // Prevent form submission and page reload
     
     // Use formData state directly instead of accessing form elements
     const projectData = {
-      office: formData.office,
-      projectName: formData.projectName,
+      pillar: '2. Water Sufficiency',
+      office: formData.office || 'Unknown Office',
+      project_name: formData.projectName || 'Untitled Project',
       accomplishment: parseInt(formData.accomplishment) || 0,
-      status: formData.status,
-      target: formData.target,
-      actual: formData.actual
+      status: formData.status || 'In Progress',
+      target: formData.target || '',
+      actual: formData.actual || ''
     };
+
+    // Debug: Log the data being sent
+    console.log('Sending project data:', projectData);
+    console.log('Current formData state:', formData);
+
+    // Validate required fields
+    if (!projectData.office || projectData.office === 'Unknown Office') {
+      showError('Please select an office');
+      return;
+    }
+    
+    if (!projectData.project_name || projectData.project_name === 'Untitled Project') {
+      showError('Please enter a project name');
+      return;
+    }
 
     try {
       if (isEditModalOpen && selectedProject) {
         // Update existing project
+        const response = await projectsAPI.update(selectedProject.id, projectData);
         const updatedProjects = projects.map(p => 
           p.id === selectedProject.id 
-            ? { ...p, ...projectData }
+            ? response.data
             : p
         );
         setProjects(updatedProjects);
         showSuccess('Project updated successfully!');
       } else {
         // Add new project
-        const newProject = {
-          id: Math.random(),
-          ...projectData,
-          pillar: '2. Water Sufficiency'
-        };
-        setProjects([...projects, newProject]);
+        const response = await projectsAPI.create(projectData);
+        setProjects([...projects, response.data]);
         showSuccess('Project added successfully!');
       }
       
@@ -205,6 +231,7 @@ const WaterSufficiency = () => {
       setSelectedProject(null);
     } catch (error) {
       console.error('Error saving project:', error);
+      console.error('Error response:', error.response?.data);
       showError('Error saving project. Please try again.');
     }
   };
@@ -215,7 +242,7 @@ const WaterSufficiency = () => {
     // Populate form with project data
     setFormData({
       office: project.office,
-      projectName: project.projectName,
+      projectName: project.project_name,
       accomplishment: project.accomplishment,
       status: project.status,
       target: project.target,
@@ -365,7 +392,7 @@ const WaterSufficiency = () => {
                     {project.office}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {project.projectName}
+                    {project.project_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -512,7 +539,7 @@ const WaterSufficiency = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Project Name</p>
-                <p className="font-medium text-gray-900">{selectedProject.projectName}</p>
+                <p className="font-medium text-gray-900">{selectedProject.project_name}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Accomplishment</p>
@@ -560,7 +587,12 @@ const WaterSufficiency = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Office</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select 
+                    name="office"
+                    value={formData.office}
+                    onChange={(e) => setFormData({...formData, office: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
                     <option value="">Select Office</option>
                     {OFFICES.map(office => (
                       <option key={office} value={office}>{office}</option>
@@ -569,15 +601,34 @@ const WaterSufficiency = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input 
+                    type="text"
+                    name="projectName"
+                    value={formData.projectName}
+                    onChange={(e) => setFormData({...formData, projectName: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Accomplishment (%)</label>
-                  <input type="number" min="0" max="100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input 
+                    type="number"
+                    name="accomplishment"
+                    min="0" 
+                    max="100" 
+                    value={formData.accomplishment}
+                    onChange={(e) => setFormData({...formData, accomplishment: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select 
+                    name="status"
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
                     <option>In Progress</option>
                     <option>Completed</option>
                     <option>Delayed</option>
@@ -586,11 +637,23 @@ const WaterSufficiency = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Target</label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input 
+                    type="text"
+                    name="target"
+                    value={formData.target}
+                    onChange={(e) => setFormData({...formData, target: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Actual</label>
-                  <input type="text" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input 
+                    type="text"
+                    name="actual"
+                    value={formData.actual}
+                    onChange={(e) => setFormData({...formData, actual: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">

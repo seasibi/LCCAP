@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OFFICES } from '../../utils/constants';
 import { useToast } from '../../context/ToastContext';
-import { calendarEventsAPI } from '../../services/api';
+import { calendarEventsAPI, projectsAPI } from '../../services/api';
 
 const FoodSecurity = () => {
   const { showSuccess, showError, showInfo } = useToast();
@@ -11,7 +11,9 @@ const FoodSecurity = () => {
   
   // Calculate projects from events
   const calculateProjectsFromEvents = (eventsData) => {
-    const foodSecurityEvents = eventsData.filter(event => event.pillar === 'Food Security');
+    const foodSecurityEvents = eventsData.filter(event => 
+      event.pillar && event.pillar.includes('Food Security')
+    );
     
     // Group events by office to create projects
     const officeGroups = foodSecurityEvents.reduce((acc, event) => {
@@ -80,13 +82,26 @@ const FoodSecurity = () => {
     loadEvents();
   }, []);
 
-  // Calculate projects from events
+  // Load projects from API
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    const calculatedProjects = calculateProjectsFromEvents(events);
-    setProjects(calculatedProjects);
-  }, [events]);
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await projectsAPI.getByPillar('1. Food Security');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        showError('Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   // Calculate stats from projects
   const stats = projects.length > 0 ? {
@@ -94,8 +109,8 @@ const FoodSecurity = () => {
       prev.accomplishment > current.accomplishment ? prev : current
     ).office,
     overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
-    totalDepartments: projects.length,
-    totalProjects: events.filter(event => event.pillar === 'Food Security').length
+    totalDepartments: [...new Set(projects.map(p => p.office))].length,
+    totalProjects: projects.length
   } : {
     leadingOffice: 'No data',
     overallAccomplishment: 0,
@@ -143,7 +158,7 @@ const FoodSecurity = () => {
     // Filter by search term
     if (filters.searchTerm) {
       filtered = filtered.filter(project => 
-        project.projectName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        project.project_name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
         project.office.toLowerCase().includes(filters.searchTerm.toLowerCase())
       );
     }
@@ -161,7 +176,7 @@ const FoodSecurity = () => {
     // Populate form with project data
     setFormData({
       office: project.office,
-      projectName: project.projectName,
+      projectName: project.project_name,
       accomplishment: project.accomplishment,
       status: project.status,
       target: project.target,
@@ -169,38 +184,50 @@ const FoodSecurity = () => {
     });
   };
 
-  const handleSaveProject = (e) => {
+  const handleSaveProject = async (e) => {
     e.preventDefault(); // Prevent form submission and page reload
     
     // Collect form data
     const formElements = e.target.elements;
     const projectData = {
-      office: formElements.office.value,
-      projectName: formElements.projectName.value,
+      pillar: '1. Food Security',
+      office: formElements.office.value || 'Unknown Office',
+      project_name: formElements.projectName.value || 'Untitled Project',
       accomplishment: parseInt(formElements.accomplishment.value) || 0,
-      status: formElements.status.value,
-      target: formElements.target.value,
-      actual: formElements.actual.value
+      status: formElements.status.value || 'In Progress',
+      target: formElements.target.value || '',
+      actual: formElements.actual.value || ''
     };
+
+    // Debug: Log the data being sent
+    console.log('Sending project data:', projectData);
+
+    // Validate required fields
+    if (!projectData.office || projectData.office === 'Unknown Office') {
+      showError('Please select an office');
+      return;
+    }
+    
+    if (!projectData.project_name || projectData.project_name === 'Untitled Project') {
+      showError('Please enter a project name');
+      return;
+    }
 
     try {
       if (isEditModalOpen && selectedProject) {
         // Update existing project
+        const response = await projectsAPI.update(selectedProject.id, projectData);
         const updatedProjects = projects.map(p => 
           p.id === selectedProject.id 
-            ? { ...p, ...projectData }
+            ? response.data
             : p
         );
         setProjects(updatedProjects);
         showSuccess('Project updated successfully!');
       } else {
         // Add new project
-        const newProject = {
-          id: Math.random(),
-          ...projectData,
-          pillar: '1. Food Security'
-        };
-        setProjects([...projects, newProject]);
+        const response = await projectsAPI.create(projectData);
+        setProjects([...projects, response.data]);
         showSuccess('Project added successfully!');
       }
       
@@ -218,6 +245,7 @@ const FoodSecurity = () => {
       setSelectedProject(null);
     } catch (error) {
       console.error('Error saving project:', error);
+      console.error('Error response:', error.response?.data);
       showError('Error saving project. Please try again.');
     }
   };
@@ -366,7 +394,7 @@ const FoodSecurity = () => {
                     {project.office}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {project.projectName}
+                    {project.project_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -519,7 +547,7 @@ const FoodSecurity = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Project Name</p>
-                <p className="font-medium text-gray-900">{selectedProject.projectName}</p>
+                <p className="font-medium text-gray-900">{selectedProject.project_name}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 mb-1">Accomplishment</p>

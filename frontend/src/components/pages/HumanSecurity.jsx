@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OFFICES } from '../../utils/constants';
 import { useToast } from '../../context/ToastContext';
-import { calendarEventsAPI } from '../../services/api';
+import { calendarEventsAPI, projectsAPI } from '../../services/api';
 
 const HumanSecurity = () => {
   const { showSuccess, showError, showInfo } = useToast();
@@ -72,13 +72,26 @@ const HumanSecurity = () => {
     loadEvents();
   }, []);
 
-  // Calculate projects from events
+  // Load projects from API
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    const calculatedProjects = calculateProjectsFromEvents(events);
-    setProjects(calculatedProjects);
-  }, [events]);
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await projectsAPI.getByPillar('4. Human Security');
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        showError('Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   // Calculate stats from projects
   const stats = projects.length > 0 ? {
@@ -86,8 +99,8 @@ const HumanSecurity = () => {
       prev.accomplishment > current.accomplishment ? prev : current
     ).office,
     overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
-    totalDepartments: projects.length,
-    totalProjects: events.filter(event => event.pillar && event.pillar.includes('Human Security')).length
+    totalDepartments: [...new Set(projects.map(p => p.office))].length,
+    totalProjects: projects.length
   } : {
     leadingOffice: 'No data',
     overallAccomplishment: 0,
@@ -146,37 +159,49 @@ const HumanSecurity = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleSaveProject = (e) => {
+  const handleSaveProject = async (e) => {
     e.preventDefault(); // Prevent form submission and page reload
     
     // Use formData state directly instead of accessing form elements
     const projectData = {
-      office: formData.office,
-      projectName: formData.projectName,
+      pillar: '4. Human Security',
+      office: formData.office || 'Unknown Office',
+      project_name: formData.projectName || 'Untitled Project',
       accomplishment: parseInt(formData.accomplishment) || 0,
-      status: formData.status,
-      target: formData.target,
-      actual: formData.actual
+      status: formData.status || 'In Progress',
+      target: formData.target || '',
+      actual: formData.actual || ''
     };
+
+    // Debug: Log the data being sent
+    console.log('Sending project data:', projectData);
+
+    // Validate required fields
+    if (!projectData.office || projectData.office === 'Unknown Office') {
+      showError('Please select an office');
+      return;
+    }
+    
+    if (!projectData.project_name || projectData.project_name === 'Untitled Project') {
+      showError('Please enter a project name');
+      return;
+    }
 
     try {
       if (isEditModalOpen && selectedProject) {
         // Update existing project
+        const response = await projectsAPI.update(selectedProject.id, projectData);
         const updatedProjects = projects.map(p => 
           p.id === selectedProject.id 
-            ? { ...p, ...projectData }
+            ? response.data
             : p
         );
         setProjects(updatedProjects);
         showSuccess('Project updated successfully!');
       } else {
         // Add new project
-        const newProject = {
-          id: Math.random(),
-          ...projectData,
-          pillar: '4. Human Security'
-        };
-        setProjects([...projects, newProject]);
+        const response = await projectsAPI.create(projectData);
+        setProjects([...projects, response.data]);
         showSuccess('Project added successfully!');
       }
       
@@ -194,6 +219,7 @@ const HumanSecurity = () => {
       setSelectedProject(null);
     } catch (error) {
       console.error('Error saving project:', error);
+      console.error('Error response:', error.response?.data);
       showError('Error saving project. Please try again.');
     }
   };

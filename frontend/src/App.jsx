@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import { PageLoading } from './components/LoadingStates';
 import Login from './components/pages/Login';
@@ -27,8 +27,31 @@ import './App.css'
 function AppContent() {
   const { toasts, removeToast } = useToast();
   
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  // Initialize auth state from localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const savedAuthState = localStorage.getItem('isLoggedIn');
+    return savedAuthState === 'true';
+  });
+  const [currentPage, setCurrentPage] = useState(() => {
+    const savedPage = localStorage.getItem('currentPage');
+    return savedPage || 'dashboard';
+  });
+
+  // Save auth state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('isLoggedIn', isLoggedIn.toString());
+    if (!isLoggedIn) {
+      // Clear currentPage from localStorage when logged out
+      localStorage.removeItem('currentPage');
+    }
+  }, [isLoggedIn]);
+
+  // Save current page to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem('currentPage', currentPage);
+    }
+  }, [currentPage, isLoggedIn]);
 
   const handleLogin = (loginData) => {
     console.log('Login successful:', loginData);

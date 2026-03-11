@@ -1,117 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { OFFICES } from '../../utils/constants';
 import { useToast } from '../../context/ToastContext';
-import { calendarEventsAPI, projectsAPI } from '../../services/api';
+import { projectsAPI } from '../../services/api';
 
-const EcologicalStability = () => {
+const FoodSecurity = () => {
   const { showSuccess, showError, showInfo } = useToast();
   
-  // State for events
-  const [events, setEvents] = useState([]);
-  
-  // Calculate projects from events
-  const calculateProjectsFromEvents = (eventsData) => {
-    const ecologicalEvents = eventsData.filter(event => 
-      event.pillar && (event.pillar.includes('Ecological') || event.pillar.includes('Environmental'))
-    );
-    
-    // Group events by office to create projects
-    const officeGroups = ecologicalEvents.reduce((acc, event) => {
-      const office = event.office || 'Unassigned';
-      if (!acc[office]) {
-        acc[office] = {
-          id: Math.random(),
-          office: office,
-          projectName: `${office} Programs`,
-          events: [],
-          accomplishment: 0,
-          status: 'Ongoing',
-          target: 'Multiple activities',
-          actual: '0 completed',
-          quarter: 'Q1 2026'
-        };
-      }
-      acc[office].events.push(event);
-      return acc;
-    }, {});
-
-    // Calculate accomplishment for each office
-    Object.values(officeGroups).forEach(project => {
-      const totalEvents = project.events.length;
-      const completedEvents = project.events.filter(event => event.status === 'Completed').length;
-      project.accomplishment = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
-      project.actual = `${completedEvents}/${totalEvents} completed`;
-      project.status = completedEvents === totalEvents ? 'Completed' : 'Ongoing';
-    });
-
-    return Object.values(officeGroups);
-  };
-
-  // Load events from API
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        const response = await calendarEventsAPI.getAll();
-        setEvents(response.data);
-      } catch (error) {
-        console.error('Error loading events:', error);
-        setEvents([
-          {
-            id: 1,
-            event_name: 'Tree Planting Program',
-            date: '2026-03-15',
-            duration: '3 days',
-            pillar: '3. Ecological and Environmental stability',
-            office: 'City Environment Office',
-            status: 'Completed'
-          }
-        ]);
-      }
-    };
-
-    loadEvents();
-  }, []);
-
-  // Load projects from API
+  // State for projects
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setLoading(true);
-        const response = await projectsAPI.getByPillar('3. Ecological and Environmental stability');
-        setProjects(response.data);
-      } catch (error) {
-        console.error('Error loading projects:', error);
-        showError('Failed to load projects');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProjects();
-  }, []);
-
-  // Calculate stats from projects
-  const stats = projects.length > 0 ? {
-    leadingOffice: projects.reduce((prev, current) => 
-      prev.accomplishment > current.accomplishment ? prev : current
-    ).office,
-    overallAccomplishment: Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length),
-    totalDepartments: [...new Set(projects.map(p => p.office))].length,
-    totalProjects: projects.length
-  } : {
-    leadingOffice: 'No data',
-    overallAccomplishment: 0,
-    totalDepartments: 0,
-    totalProjects: 0
-  };
-
+  // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
   
   // Form data state
   const [formData, setFormData] = useState({
@@ -123,80 +27,88 @@ const EcologicalStability = () => {
     actual: ''
   });
   
-  // Filtering state
+  // Filter state
   const [filters, setFilters] = useState({
     office: '',
     status: '',
     searchTerm: ''
   });
-  const [filteredProjects, setFilteredProjects] = useState([]);
 
-  // Apply filters whenever projects or filters change
+  // Load projects from API
   useEffect(() => {
-    let filtered = [...projects];
-    
-    // Filter by office
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await projectsAPI.getByPillar('1. Food Security');
+        setProjects(response.data);
+        setFilteredProjects(response.data);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        showError('Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = projects;
+
     if (filters.office) {
-      filtered = filtered.filter(project => project.office === filters.office);
+      filtered = filtered.filter(project => 
+        project.office.toLowerCase().includes(filters.office.toLowerCase())
+      );
     }
-    
-    // Filter by status
+
     if (filters.status) {
-      filtered = filtered.filter(project => project.status === filters.status);
+      filtered = filtered.filter(project => 
+        project.status.toLowerCase().includes(filters.status.toLowerCase())
+      );
     }
-    
-    // Filter by search term
+
     if (filters.searchTerm) {
       filtered = filtered.filter(project => 
-        project.project_name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        project.projectName.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
         project.office.toLowerCase().includes(filters.searchTerm.toLowerCase())
       );
     }
-    
+
     setFilteredProjects(filtered);
   }, [projects, filters]);
 
-  const handleAdd = () => {
-    setIsAddModalOpen(true);
+  // Calculate statistics
+  const stats = {
+    leadingOffice: projects.length > 0 ? projects[0].office : 'N/A',
+    overallAccomplishment: projects.length > 0 
+      ? Math.round(projects.reduce((sum, p) => sum + p.accomplishment, 0) / projects.length)
+      : 0,
+    totalDepartments: [...new Set(projects.map(p => p.office))].length,
+    totalProjects: projects.length
   };
 
+  // Handle save project
   const handleSaveProject = async (e) => {
-    e.preventDefault(); // Prevent form submission and page reload
+    e.preventDefault();
     
-    // Use formData state directly instead of accessing form elements
     const projectData = {
-      pillar: '3. Ecological and Environmental stability',
-      office: formData.office || 'Unknown Office',
-      project_name: formData.projectName || 'Untitled Project',
+      pillar: '1. Food Security',
+      office: formData.office,
+      projectName: formData.projectName,
       accomplishment: parseInt(formData.accomplishment) || 0,
-      status: formData.status || 'In Progress',
-      target: formData.target || '',
-      actual: formData.actual || ''
+      status: formData.status,
+      target: formData.target,
+      actual: formData.actual
     };
-
-    // Debug: Log the data being sent
-    console.log('Sending project data:', projectData);
-    console.log('Current formData state:', formData);
-
-    // Validate required fields
-    if (!projectData.office || projectData.office === 'Unknown Office') {
-      showError('Please select an office');
-      return;
-    }
-    
-    if (!projectData.project_name || projectData.project_name === 'Untitled Project') {
-      showError('Please enter a project name');
-      return;
-    }
 
     try {
       if (isEditModalOpen && selectedProject) {
         // Update existing project
         const response = await projectsAPI.update(selectedProject.id, projectData);
         const updatedProjects = projects.map(p => 
-          p.id === selectedProject.id 
-            ? response.data
-            : p
+          p.id === selectedProject.id ? response.data : p
         );
         setProjects(updatedProjects);
         showSuccess('Project updated successfully!');
@@ -221,15 +133,14 @@ const EcologicalStability = () => {
       setSelectedProject(null);
     } catch (error) {
       console.error('Error saving project:', error);
-      console.error('Error response:', error.response?.data);
       showError('Error saving project. Please try again.');
     }
   };
 
+  // Handle edit project
   const handleEdit = (project) => {
     setSelectedProject(project);
     setIsEditModalOpen(true);
-    // Populate form with project data
     setFormData({
       office: project.office,
       projectName: project.project_name,
@@ -240,17 +151,35 @@ const EcologicalStability = () => {
     });
   };
 
+  // Handle view project
   const handleView = (project) => {
     setSelectedProject(project);
     setIsViewModalOpen(true);
   };
 
+  // Handle delete project
+  const handleDelete = async (project) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      try {
+        await projectsAPI.delete(project.id);
+        const updatedProjects = projects.filter(p => p.id !== project.id);
+        setProjects(updatedProjects);
+        showSuccess('Project deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        showError('Error deleting project. Please try again.');
+      }
+    }
+  };
+
+  // Get accomplishment color
   const getAccomplishmentColor = (percentage) => {
     if (percentage >= 90) return 'text-green-600 bg-green-100';
     if (percentage >= 75) return 'text-yellow-600 bg-yellow-100';
     return 'text-red-600 bg-red-100';
   };
 
+  // Get status color
   const getStatusColor = (status) => {
     switch (status) {
       case 'Completed': return 'bg-green-100 text-green-800';
@@ -263,6 +192,7 @@ const EcologicalStability = () => {
     }
   };
 
+  // Metric Card Component
   const MetricCard = ({ label, value, icon, color = 'blue' }) => {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -279,6 +209,7 @@ const EcologicalStability = () => {
     );
   };
 
+  // Empty State Component
   const EmptyState = () => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
       <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -291,6 +222,7 @@ const EcologicalStability = () => {
     </div>
   );
 
+  // Goal Header Component
   const GoalHeader = ({ title, subtitle }) => (
     <div className="mb-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
@@ -298,6 +230,7 @@ const EcologicalStability = () => {
     </div>
   );
 
+  // Filter Bar Component
   const FilterBar = ({ filters, setFilters, projects }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -355,7 +288,8 @@ const EcologicalStability = () => {
     </div>
   );
 
-  const ProjectsTable = ({ projects, onView, onEdit }) => (
+  // Projects Table Component
+  const ProjectsTable = ({ projects, onView, onEdit, onDelete }) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -371,7 +305,7 @@ const EcologicalStability = () => {
           <tbody className="bg-white divide-y divide-gray-100">
             {projects.length === 0 ? (
               <tr>
-                <td colSpan="7" className="px-6 py-12">
+                <td colSpan="5" className="px-6 py-12">
                   <EmptyState />
                 </td>
               </tr>
@@ -424,6 +358,7 @@ const EcologicalStability = () => {
                         </svg>
                       </button>
                       <button
+                        onClick={() => onDelete(project)}
                         className="text-red-600 hover:text-red-800 transition-colors"
                         title="Delete"
                       >
@@ -442,11 +377,19 @@ const EcologicalStability = () => {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 md:p-8 flex items-center justify-center">
+        <div className="text-lg text-gray-600">Loading projects...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-8">
       <GoalHeader 
-        title="Ecological and Environmental Stability" 
-        subtitle="Programs protecting natural ecosystems and environmental sustainability"
+        title="Food Security" 
+        subtitle="Programs and projects ensuring food availability, accessibility, and sustainability"
       />
 
       {/* Metric Cards */}
@@ -493,7 +436,7 @@ const EcologicalStability = () => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 md:mb-0">Projects by Office</h2>
         <button
-          onClick={handleAdd}
+          onClick={() => setIsAddModalOpen(true)}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -515,6 +458,7 @@ const EcologicalStability = () => {
         projects={filteredProjects}
         onView={handleView}
         onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       {/* View Modal */}
@@ -582,6 +526,7 @@ const EcologicalStability = () => {
                     value={formData.office}
                     onChange={(e) => setFormData({...formData, office: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
                   >
                     <option value="">Select Office</option>
                     {OFFICES.map(office => (
@@ -596,7 +541,8 @@ const EcologicalStability = () => {
                     name="projectName"
                     value={formData.projectName}
                     onChange={(e) => setFormData({...formData, projectName: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
                   />
                 </div>
                 <div>
@@ -608,27 +554,8 @@ const EcologicalStability = () => {
                     max="100" 
                     value={formData.accomplishment}
                     onChange={(e) => setFormData({...formData, accomplishment: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Target</label>
-                  <input 
-                    type="text"
-                    name="target"
-                    value={formData.target}
-                    onChange={(e) => setFormData({...formData, target: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Actual</label>
-                  <input 
-                    type="text"
-                    name="actual"
-                    value={formData.actual}
-                    onChange={(e) => setFormData({...formData, actual: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
                   />
                 </div>
                 <div>
@@ -638,13 +565,34 @@ const EcologicalStability = () => {
                     value={formData.status}
                     onChange={(e) => setFormData({...formData, status: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
                   >
-                    <option>In Progress</option>
-                    <option>Completed</option>
-                    <option>Delayed</option>
-                    <option>Planning</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Planning">Planning</option>
                   </select>
-                </div>                
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Target</label>
+                  <input 
+                    type="text"
+                    name="target"
+                    value={formData.target}
+                    onChange={(e) => setFormData({...formData, target: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Actual</label>
+                  <input 
+                    type="text"
+                    name="actual"
+                    value={formData.actual}
+                    onChange={(e) => setFormData({...formData, actual: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">
                 <button
@@ -658,8 +606,7 @@ const EcologicalStability = () => {
                   Cancel
                 </button>
                 <button
-                  type="button"
-                  onClick={handleSaveProject}
+                  type="submit"
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   {isEditModalOpen ? 'Update' : 'Save'}
@@ -673,4 +620,4 @@ const EcologicalStability = () => {
   );
 };
 
-export default EcologicalStability;
+export default FoodSecurity;

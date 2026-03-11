@@ -24,4 +24,22 @@ export const calendarEventsAPI = {
   delete: (id) => api.delete(`/calendar/events/${id}/`),
 };
 
+// Projects API
+export const projectsAPI = {
+  // Get all projects
+  getAll: () => api.get('/projects/'),
+  
+  // Get projects by pillar
+  getByPillar: (pillar) => api.get(`/projects/pillar/${encodeURIComponent(pillar)}/`),
+  
+  // Create new project
+  create: (projectData) => api.post('/projects/', projectData),
+  
+  // Update project
+  update: (id, projectData) => api.put(`/projects/${id}/`, projectData),
+  
+  // Delete project
+  delete: (id) => api.delete(`/projects/${id}/`),
+};
+
 export default api;
